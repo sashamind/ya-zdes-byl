@@ -25,6 +25,29 @@
       white-space: nowrap;
     }
 
+    #start-btn {
+      position: fixed;
+      top: 35%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      padding: 20px 48px;
+      font-size: 13px;
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.8);
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 4px;
+      cursor: pointer;
+      z-index: 500;
+      transition: all 0.3s;
+    }
+    #start-btn:hover {
+      background: rgba(255,255,255,0.08);
+      border-color: rgba(255,255,255,0.6);
+    }
+
     #settings-btn {
       position: fixed;
       bottom: max(0px, env(safe-area-inset-bottom));
@@ -58,10 +81,7 @@
       pointer-events: none;
       transition: opacity 0.3s;
     }
-    #overlay.visible {
-      opacity: 1;
-      pointer-events: all;
-    }
+    #overlay.visible { opacity: 1; pointer-events: all; }
 
     #menu {
       position: fixed;
@@ -98,11 +118,7 @@
       text-align: center;
     }
 
-    #camera-list {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
+    #camera-list { display: flex; flex-direction: column; gap: 8px; }
 
     .camera-item {
       padding: 11px 14px;
@@ -118,9 +134,7 @@
       letter-spacing: 0.04em;
       width: 100%;
     }
-    .camera-item:active {
-      background: rgba(255,255,255,0.12);
-    }
+    .camera-item:active { background: rgba(255,255,255,0.12); }
     .camera-item.active {
       background: rgba(255,255,255,0.1);
       border-color: rgba(255,255,255,0.3);
@@ -140,10 +154,6 @@
       text-transform: uppercase;
       font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
       cursor: pointer;
-      transition: all 0.2s;
-    }
-    #close-btn:active {
-      background: rgba(255,255,255,0.08);
     }
 
     #debug-window {
@@ -161,9 +171,7 @@
       backdrop-filter: blur(20px);
       overflow: hidden;
     }
-    #debug-window.visible {
-      display: flex;
-    }
+    #debug-window.visible { display: flex; }
 
     #debug-header {
       padding: 12px;
@@ -209,10 +217,8 @@
 
     #debug-canvas {
       position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
     }
 
     #debug-info {
@@ -226,13 +232,12 @@
       overflow-y: auto;
     }
 
-    #webcam-video {
-      display: none;
-    }
+    #webcam-video { display: none; }
   </style>
 </head>
 <body>
 
+  <button id="start-btn">начать</button>
   <div id="status">инициализация...</div>
   <button id="settings-btn"></button>
   <button id="debug-btn"></button>
@@ -254,9 +259,7 @@
       <video id="debug-video"></video>
       <canvas id="debug-canvas"></canvas>
     </div>
-    <div id="debug-info">
-      <div>Ожидание...</div>
-    </div>
+    <div id="debug-info"><div>Ожидание...</div></div>
   </div>
 
   <video id="webcam-video" playsinline></video>
@@ -269,7 +272,7 @@
 
   <script>
     // ========================================
-    // НАСТРОЙКИ
+    // КОНФИГ
     // ========================================
     var CONFIG = {
       text: 'Я ЗДЕСЬ БЫЛ',
@@ -291,45 +294,73 @@
       motionRiseSmoothing: 0.15,
       motionFallSmoothing: 0.025,
 
-      audioEnabled: true,
-      audioFrequency: 200,
-      audioVolume: 0.3,
+      // Чувствительность
+      // motionThreshold — минимальное движение одного сустава (отсекает дрожание камеры)
+      // motionNoiseFloor — минимальное среднее по всем суставам (если ниже — тишина)
+      // motionScale — усиление сигнала после вычета шума
+      motionThreshold: 0.004,
+      motionNoiseFloor: 0.015,
+      motionScale: 40,
 
+      audioEnabled: true,
       litIntensity: 0.8,
       litDisplacement: 0.15,
     };
 
+    // Только ключевые суставы тела — без лица и ладоней
+    // 11=левое плечо, 12=правое плечо, 13=левый локоть, 14=правый локоть
+    // 15=левое запястье, 16=правое запястье
+    // 23=левое бедро, 24=правое бедро
+    // 25=левое колено, 26=правое колено
+    // 27=левая лодыжка, 28=правая лодыжка
+    var KEY_JOINTS = [11, 12, 13, 14, 15, 16, 23, 24, 25, 26, 27, 28];
+
+    // Соединения между суставами для рисования скелета
+    var SKELETON_CONNECTIONS = [
+      [11, 12], // плечи
+      [11, 13], [13, 15], // левая рука
+      [12, 14], [14, 16], // правая рука
+      [11, 23], [12, 24], // торс
+      [23, 24],           // бёдра
+      [23, 25], [25, 27], // левая нога
+      [24, 26], [26, 28], // правая нога
+    ];
+
+    // ========================================
+    // DOM
+    // ========================================
+    var statusEl    = document.getElementById('status');
+    var startBtn    = document.getElementById('start-btn');
+    var settingsBtn = document.getElementById('settings-btn');
+    var debugBtn    = document.getElementById('debug-btn');
+    var overlay     = document.getElementById('overlay');
+    var menuEl      = document.getElementById('menu');
+    var cameraList  = document.getElementById('camera-list');
+    var closeBtn    = document.getElementById('close-btn');
+    var debugWindow = document.getElementById('debug-window');
+    var debugVideo  = document.getElementById('debug-video');
+    var debugCanvas = document.getElementById('debug-canvas');
+    var debugInfo   = document.getElementById('debug-info');
+    var debugClose  = document.getElementById('debug-close');
+    var webcamVideo = document.getElementById('webcam-video');
+
     // ========================================
     // ПЕРЕМЕННЫЕ
     // ========================================
-    var statusEl   = document.getElementById('status');
-    var settingsBtn = document.getElementById('settings-btn');
-    var debugBtn = document.getElementById('debug-btn');
-    var overlay    = document.getElementById('overlay');
-    var menuEl     = document.getElementById('menu');
-    var cameraList = document.getElementById('camera-list');
-    var closeBtn   = document.getElementById('close-btn');
-
-    var debugWindow = document.getElementById('debug-window');
-    var debugVideo = document.getElementById('debug-video');
-    var debugCanvas = document.getElementById('debug-canvas');
-    var debugInfo = document.getElementById('debug-info');
-    var debugClose = document.getElementById('debug-close');
-    var webcamVideo = document.getElementById('webcam-video');
-
-    var letterMeshes   = [];
-    var smoothMotion   = 0;
-    var activeCameraId = null;
-
-    // MediaPipe
-    var pose = null;
-    var lastPoseLandmarks = null;
+    var letterMeshes        = [];
+    var smoothMotion        = 0;
+    var activeCameraId      = null;
+    var lastPoseLandmarks   = null;
     var poseMotionIntensity = 0;
+    var time                = 0;
+    var appStarted          = false;
 
     // Audio
-    var audioContext = null;
-    var oscillator = null;
-    var gainNode = null;
+    var audioContext       = null;
+    var masterGain         = null;
+    var ambientOscillators = [];
+    var glitchOscillators  = [];
+    var glitchGainNode     = null;
 
     // ========================================
     // THREE.JS
@@ -338,9 +369,7 @@
     scene.background = new THREE.Color(0x000000);
 
     var camera = new THREE.PerspectiveCamera(
-      45,
-      window.innerWidth / window.innerHeight,
-      0.1, 100
+      45, window.innerWidth / window.innerHeight, 0.1, 100
     );
     camera.position.z = 7;
 
@@ -353,250 +382,254 @@
     litLight.position.set(0, 0, 5);
     scene.add(litLight);
 
-        // ========================================
-    // ИНИЦИАЛИЗАЦИЯ AUDIO
     // ========================================
-    var noiseBuffer = null;
-    var noiseNode = null;
-    var ambientOscillators = [];
-
+    // AUDIO — СОЗДАНИЕ
+    // ========================================
     function initAudio() {
       if (!audioContext) {
         audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        createNoiseBuffer();
-        createAmbientOscillators();
       }
       if (audioContext.state === 'suspended') {
         audioContext.resume();
       }
-    }
-
-    function createNoiseBuffer() {
-      var bufferSize = audioContext.sampleRate * 2;
-      var noiseBuffer = audioContext.createBuffer(1, bufferSize, audioContext.sampleRate);
-      var output = noiseBuffer.getChannelData(0);
-      for (var i = 0; i < bufferSize; i++) {
-        output[i] = Math.random() * 2 - 1;
+      if (ambientOscillators.length === 0) {
+        createAmbientOscillators();
       }
-      window.noiseBuffer = noiseBuffer;
+      if (glitchOscillators.length === 0) {
+        createGlitchOscillators();
+      }
     }
 
     function createAmbientOscillators() {
-      if (ambientOscillators.length > 0) return;
+      // Мастер громкость
+      masterGain = audioContext.createGain();
+      masterGain.connect(audioContext.destination);
+      masterGain.gain.value = 0;
 
-      var frequencies = [55, 110, 165]; // Низкие частоты для амбиента
-      var gainMaster = audioContext.createGain();
-      gainMaster.connect(audioContext.destination);
-      gainMaster.gain.value = 0;
-
-      frequencies.forEach(function(freq) {
-        var osc = audioContext.createOscillator();
-        var gain = audioContext.createGain();
-        var lfo = audioContext.createOscillator();
+      // Три низких гудящих тона
+      [40, 60, 80].forEach(function(freq, idx) {
+        var osc     = audioContext.createOscillator();
+        var gain    = audioContext.createGain();
+        var lfo     = audioContext.createOscillator();
         var lfoGain = audioContext.createGain();
 
         osc.type = 'sine';
         osc.frequency.value = freq;
+
+        // LFO медленно качает высоту тона
         lfo.type = 'sine';
-        lfo.frequency.value = 0.3 + Math.random() * 0.2;
-        lfoGain.gain.value = 5;
+        lfo.frequency.value = 0.2 + idx * 0.05;
+        lfoGain.gain.value = 3;
 
         lfo.connect(lfoGain);
         lfoGain.connect(osc.frequency);
         osc.connect(gain);
-        gain.connect(gainMaster);
-
-        gain.gain.value = 0.05;
+        gain.connect(masterGain);
+        gain.gain.value = 0.08;
 
         osc.start();
         lfo.start();
 
-        ambientOscillators.push({ osc: osc, gain: gain, lfo: lfo });
+        ambientOscillators.push({ osc: osc, gain: gain, baseFreq: freq });
       });
-
-      window.ambientGainMaster = gainMaster;
     }
 
+    function createGlitchOscillators() {
+      // Шина для глич-эффекта
+      glitchGainNode = audioContext.createGain();
+      glitchGainNode.connect(masterGain);
+      glitchGainNode.gain.value = 0;
+
+      // Пилообразные волны — дают резкий электронный звук
+      [200, 320, 480].forEach(function(freq) {
+        var osc  = audioContext.createOscillator();
+        var gain = audioContext.createGain();
+
+        osc.type = 'sawtooth';
+        osc.frequency.value = freq;
+        osc.connect(gain);
+        gain.connect(glitchGainNode);
+        gain.gain.value = 1;
+
+        osc.start();
+        glitchOscillators.push({ osc: osc, gain: gain });
+      });
+    }
+
+    // ========================================
+    // AUDIO — ВОСПРОИЗВЕДЕНИЕ
+    // ========================================
     function playMotionSound(intensity) {
-      if (!CONFIG.audioEnabled || !audioContext) return;
+      if (!CONFIG.audioEnabled || !audioContext || !masterGain) return;
 
-      // === ТРЕЩАЩИЙ ШУМ ===
-      if (!noiseNode) {
-        noiseNode = audioContext.createBufferSource();
-        noiseNode.buffer = window.noiseBuffer;
-        noiseNode.loop = true;
-
-        var noiseGain = audioContext.createGain();
-        var noiseFilter = audioContext.createBiquadFilter();
-
-        noiseFilter.type = 'highpass';
-        noiseFilter.frequency.value = 2000;
-        noiseFilter.Q.value = 5;
-
-        noiseNode.connect(noiseFilter);
-        noiseFilter.connect(noiseGain);
-        noiseGain.connect(audioContext.destination);
-
-        noiseNode.start();
-        window.noiseGain = noiseGain;
-        window.noiseFilter = noiseFilter;
-      }
-
-      // Трещащий шум с хаотичными всплесками
-      var noiseIntensity = intensity * 0.3;
-      var randomSpike = Math.random() < intensity * 0.2 ? Math.random() * 0.5 : 0;
-      window.noiseGain.gain.setTargetAtTime(
-        noiseIntensity + randomSpike,
+      // Поднимаем гул пропорционально движению
+      masterGain.gain.setTargetAtTime(
+        intensity * 0.3,
         audioContext.currentTime,
-        0.05
+        0.4
       );
 
-      // Фильтр движется с интенсивностью
-      window.noiseFilter.frequency.setTargetAtTime(
-        2000 + intensity * 3000,
-        audioContext.currentTime,
-        0.1
-      );
-
-      // === АМБИЕНТНЫЙ ФОН ===
-      if (window.ambientGainMaster) {
-        window.ambientGainMaster.gain.setTargetAtTime(
-          intensity * 0.15,
-          audioContext.currentTime,
-          0.3
-        );
-      }
-
-      // Модулируем амбиентные осцилляторы
+      // Слегка модулируем частоты амбиента
       ambientOscillators.forEach(function(item, idx) {
-        var modulation = Math.sin(audioContext.currentTime * (0.5 + idx * 0.1)) * intensity * 0.02;
-        item.gain.gain.setTargetAtTime(
-          0.05 + modulation,
+        var freqMod = Math.sin(audioContext.currentTime * (0.3 + idx * 0.15)) * intensity * 2;
+        item.osc.frequency.setTargetAtTime(
+          item.baseFreq + freqMod,
           audioContext.currentTime,
           0.2
         );
       });
+
+      // Случайный глич при активном движении
+      if (Math.random() < intensity * 0.15) {
+        var spike = Math.random() * intensity;
+        glitchGainNode.gain.setTargetAtTime(spike * 0.4, audioContext.currentTime, 0.01);
+
+        glitchOscillators.forEach(function(item) {
+          item.osc.frequency.setTargetAtTime(
+            150 + Math.random() * 400,
+            audioContext.currentTime,
+            0.01
+          );
+        });
+
+        // Быстро гасим глич
+        setTimeout(function() {
+          if (glitchGainNode) {
+            glitchGainNode.gain.setTargetAtTime(0, audioContext.currentTime, 0.08);
+          }
+        }, 50 + Math.random() * 100);
+      }
     }
 
     function stopMotionSound() {
-      if (!audioContext) return;
-
-      if (window.noiseGain) {
-        window.noiseGain.gain.setTargetAtTime(0, audioContext.currentTime, 0.3);
-      }
-
-      if (window.ambientGainMaster) {
-        window.ambientGainMaster.gain.setTargetAtTime(0, audioContext.currentTime, 0.5);
+      if (!audioContext || !masterGain) return;
+      masterGain.gain.setTargetAtTime(0, audioContext.currentTime, 0.5);
+      if (glitchGainNode) {
+        glitchGainNode.gain.setTargetAtTime(0, audioContext.currentTime, 0.2);
       }
     }
 
     // ========================================
-    // ИНИЦИАЛИЗАЦИЯ MEDIAPIPE POSE
+    // MEDIAPIPE — ОБРАБОТКА РЕЗУЛЬТАТОВ
     // ========================================
     function onPoseResults(results) {
       if (!results.poseLandmarks || results.poseLandmarks.length === 0) {
         debugInfo.innerHTML = '<div>Человек не найден</div>';
-        poseMotionIntensity = 0;
+        poseMotionIntensity *= 0.85;
         return;
       }
 
       var currentLandmarks = results.poseLandmarks;
 
-      // Рисуем скелет в отладочном окне
       if (debugWindow.classList.contains('visible')) {
         drawSkeleton(currentLandmarks, results.image);
       }
 
       if (!lastPoseLandmarks) {
         lastPoseLandmarks = currentLandmarks;
-        debugInfo.innerHTML = '<div>Инициализация...</div>';
         poseMotionIntensity = 0;
         return;
       }
 
-      // Вычисляем среднюю скорость всех суставов
       var totalMotion = 0;
       var count = 0;
 
-      for (var i = 0; i < currentLandmarks.length; i++) {
-        var curr = currentLandmarks[i];
-        var prev = lastPoseLandmarks[i];
+      // Считаем движение ТОЛЬКО по ключевым суставам
+      for (var k = 0; k < KEY_JOINTS.length; k++) {
+        var idx  = KEY_JOINTS[k];
+        var curr = currentLandmarks[idx];
+        var prev = lastPoseLandmarks[idx];
 
-        if (curr.visibility > 0.5 && prev.visibility > 0.5) {
-          var dx = curr.x - prev.x;
-          var dy = curr.y - prev.y;
+        if (curr.visibility > 0.3 && prev.visibility > 0.3) {
+          var dx   = curr.x - prev.x;
+          var dy   = curr.y - prev.y;
           var dist = Math.sqrt(dx * dx + dy * dy);
-          totalMotion += dist;
-          count++;
+
+          // Отсекаем микродрожание камеры
+          if (dist > CONFIG.motionThreshold) {
+            totalMotion += dist;
+            count++;
+          }
         }
       }
 
       lastPoseLandmarks = currentLandmarks;
 
       if (count === 0) {
-        debugInfo.innerHTML = '<div>Суставы не видны</div>';
-        poseMotionIntensity = 0;
+        poseMotionIntensity *= 0.85;
+        debugInfo.innerHTML = '<div>Нет движения</div>';
         return;
       }
 
       var avgMotion = totalMotion / count;
-      poseMotionIntensity = Math.min(1, avgMotion * 5);
 
-      debugInfo.innerHTML = '<div>Движение: ' + (avgMotion * 100).toFixed(1) + '%</div>' +
-                           '<div>Интенсивность: ' + (poseMotionIntensity * 100).toFixed(1) + '%</div>' +
-                           '<div>Видимых суставов: ' + count + '</div>';
+      // Если ниже noise floor — это шум камеры, плавно гасим
+      if (avgMotion < CONFIG.motionNoiseFloor) {
+        poseMotionIntensity *= 0.85;
+        debugInfo.innerHTML =
+          '<div>Движение: ' + (avgMotion * 1000).toFixed(2) + ' (шум)</div>' +
+          '<div>Интенсивность: 0%</div>' +
+          '<div>Суставов: ' + count + '</div>';
+        return;
+      }
+
+      // Вычитаем шум — чистый сигнал начинается с нуля
+      var cleanMotion = avgMotion - CONFIG.motionNoiseFloor;
+      poseMotionIntensity = Math.min(1, cleanMotion * CONFIG.motionScale);
+
+      debugInfo.innerHTML =
+        '<div>Движение: ' + (avgMotion * 1000).toFixed(2) + '</div>' +
+        '<div>Чистое: ' + (cleanMotion * 1000).toFixed(2) + '</div>' +
+        '<div>Интенсивность: ' + (poseMotionIntensity * 100).toFixed(1) + '%</div>' +
+        '<div>Суставов: ' + count + '</div>';
     }
 
+    // ========================================
+    // MEDIAPIPE — РИСОВАНИЕ СКЕЛЕТА
+    // ========================================
     function drawSkeleton(landmarks, image) {
       var ctx = debugCanvas.getContext('2d');
-      var w = debugCanvas.width;
-      var h = debugCanvas.height;
+      var w   = debugCanvas.width;
+      var h   = debugCanvas.height;
 
       ctx.clearRect(0, 0, w, h);
       ctx.drawImage(image, 0, 0, w, h);
 
-      // Соединения между суставами
-      var connections = [
-        [11, 12], [11, 13], [13, 15], [12, 14], [14, 16],
-        [11, 23], [12, 24], [23, 24], [23, 25], [24, 26],
-        [25, 27], [26, 28], [27, 29], [28, 30], [29, 31], [30, 32]
-      ];
-
-      // Рисуем линии
+      // Рисуем линии скелета
       ctx.strokeStyle = 'rgba(0, 255, 100, 0.6)';
       ctx.lineWidth = 2;
 
-      for (var i = 0; i < connections.length; i++) {
-        var start = landmarks[connections[i][0]];
-        var end = landmarks[connections[i][1]];
-
-        if (start.visibility > 0.5 && end.visibility > 0.5) {
+      SKELETON_CONNECTIONS.forEach(function(pair) {
+        var a = landmarks[pair[0]];
+        var b = landmarks[pair[1]];
+        if (a.visibility > 0.3 && b.visibility > 0.3) {
           ctx.beginPath();
-          ctx.moveTo(start.x * w, start.y * h);
-          ctx.lineTo(end.x * w, end.y * h);
+          ctx.moveTo(a.x * w, a.y * h);
+          ctx.lineTo(b.x * w, b.y * h);
           ctx.stroke();
         }
-      }
+      });
 
-      // Рисуем точки суставов
-      ctx.fillStyle = 'rgba(0, 255, 100, 0.8)';
-      for (var i = 0; i < landmarks.length; i++) {
-        if (landmarks[i].visibility > 0.5) {
+      // Рисуем только ключевые точки
+      ctx.fillStyle = 'rgba(0, 255, 100, 0.9)';
+      KEY_JOINTS.forEach(function(idx) {
+        var lm = landmarks[idx];
+        if (lm.visibility > 0.3) {
           ctx.beginPath();
-          ctx.arc(landmarks[i].x * w, landmarks[i].y * h, 4, 0, Math.PI * 2);
+          ctx.arc(lm.x * w, lm.y * h, 5, 0, Math.PI * 2);
           ctx.fill();
         }
-      }
+      });
     }
 
     // ========================================
-    // ТЕКСТУРА БУКВЫ
+    // БУКВЫ — ТЕКСТУРА
     // ========================================
     function createLetterTexture(char) {
       var size = 256;
-      var c = document.createElement('canvas');
-      c.width = c.height = size;
-      var cx = c.getContext('2d');
+      var c    = document.createElement('canvas');
+      c.width  = c.height = size;
+      var cx   = c.getContext('2d');
       cx.clearRect(0, 0, size, size);
       cx.fillStyle    = '#ffffff';
       cx.font         = '200 ' + Math.floor(size * 0.72) + 'px Helvetica Neue, Helvetica, Arial, sans-serif';
@@ -607,16 +640,15 @@
     }
 
     // ========================================
-    // СОЗДАНИЕ БУКВ
+    // БУКВЫ — СОЗДАНИЕ
     // ========================================
     function initLetters() {
-      for (var i = 0; i < letterMeshes.length; i++) {
-        var m = letterMeshes[i];
-        if (!m) continue;
+      letterMeshes.forEach(function(m) {
+        if (!m) return;
         scene.remove(m);
         m.geometry.dispose();
         m.material.dispose();
-      }
+      });
       letterMeshes = [];
 
       var chars      = CONFIG.text.split('');
@@ -624,9 +656,8 @@
       var totalWidth = chars.length * step - CONFIG.letterSpacing;
       var startX     = -totalWidth / 2 + step / 2;
 
-      for (var i = 0; i < chars.length; i++) {
-        var char = chars[i];
-        if (char === ' ') { letterMeshes.push(null); continue; }
+      chars.forEach(function(char, i) {
+        if (char === ' ') { letterMeshes.push(null); return; }
 
         var mesh = new THREE.Mesh(
           new THREE.PlaneGeometry(CONFIG.letterSize, CONFIG.letterSize),
@@ -640,7 +671,6 @@
 
         var homeX = startX + i * step;
         mesh.position.set(homeX, 0, 0);
-
         mesh.userData = {
           homeX: homeX, homeY: 0, homeZ: 0,
           vx: 0, vy: 0, vz: 0,
@@ -651,24 +681,20 @@
 
         scene.add(mesh);
         letterMeshes.push(mesh);
-      }
+      });
     }
 
-    // ========================
-        // ========================================
-    // ФИЗИКА
     // ========================================
-    var time = 0;
-
+    // БУКВЫ — ФИЗИКА
+    // ========================================
     function updateLetters(motionIntensity) {
       time += 0.016;
 
-      for (var i = 0; i < letterMeshes.length; i++) {
-        var mesh = letterMeshes[i];
-        if (!mesh) continue;
-
+      letterMeshes.forEach(function(mesh) {
+        if (!mesh) return;
         var ud = mesh.userData;
 
+        // Применяем импульс только при реальном движении
         if (motionIntensity > 0.01 && Math.random() < motionIntensity * 0.4) {
           var s = CONFIG.impulseStrength / ud.mass;
           ud.vx    += (Math.random() - 0.5) * s * 2;
@@ -678,29 +704,33 @@
           ud.vRotX += (Math.random() - 0.5) * CONFIG.rotImpulse * 0.5 / ud.mass;
         }
 
-        ud.vx += (ud.homeX - mesh.position.x) * CONFIG.returnForce;
-        ud.vy += (ud.homeY - mesh.position.y) * CONFIG.returnForce;
-        ud.vz += (ud.homeZ - mesh.position.z) * CONFIG.returnForce;
+        // Притяжение к домашней позиции
+        ud.vx    += (ud.homeX - mesh.position.x) * CONFIG.returnForce;
+        ud.vy    += (ud.homeY - mesh.position.y) * CONFIG.returnForce;
+        ud.vz    += (ud.homeZ - mesh.position.z) * CONFIG.returnForce;
+        ud.vRotZ += -mesh.rotation.z * CONFIG.rotReturn;
+        ud.vRotX += -mesh.rotation.x * CONFIG.rotReturn;
 
-        ud.vRotZ += (0 - mesh.rotation.z) * CONFIG.rotReturn;
-        ud.vRotX += (0 - mesh.rotation.x) * CONFIG.rotReturn;
-
+        // Трение
         ud.vx    *= CONFIG.friction;
         ud.vy    *= CONFIG.friction;
         ud.vz    *= CONFIG.friction;
         ud.vRotZ *= CONFIG.rotFriction;
         ud.vRotX *= CONFIG.rotFriction;
 
+        // Ограничение скорости
         var speed = Math.sqrt(ud.vx * ud.vx + ud.vy * ud.vy);
         if (speed > CONFIG.maxSpeed) {
           ud.vx = (ud.vx / speed) * CONFIG.maxSpeed;
           ud.vy = (ud.vy / speed) * CONFIG.maxSpeed;
         }
 
+        // Применяем скорость
         mesh.position.x += ud.vx;
         mesh.position.y += ud.vy;
         mesh.position.z += ud.vz;
 
+        // Отбой от дальней стенки по Z
         if (Math.abs(mesh.position.z) > CONFIG.maxZ) {
           mesh.position.z = Math.sign(mesh.position.z) * CONFIG.maxZ;
           ud.vz *= -0.3;
@@ -709,16 +739,16 @@
         mesh.rotation.z += ud.vRotZ;
         mesh.rotation.x += ud.vRotX;
 
-        // LIT ЭФФЕКТ
-        var litWave = Math.sin(time * 2 + ud.litPhase) * CONFIG.litDisplacement * motionIntensity;
-        mesh.position.x += litWave * 0.02;
+        // Лёгкое волновое смещение при движении
+        mesh.position.x += Math.sin(time * 2 + ud.litPhase) * CONFIG.litDisplacement * motionIntensity * 0.02;
         mesh.position.y += Math.cos(time * 1.5 + ud.litPhase) * CONFIG.litDisplacement * motionIntensity * 0.015;
 
         litLight.intensity = motionIntensity * CONFIG.litIntensity;
 
+        // Прозрачность зависит от глубины Z
         var zRatio = Math.abs(mesh.position.z) / CONFIG.maxZ;
         mesh.material.opacity = Math.max(0.05, 1 - zRatio * 0.85);
-      }
+      });
     }
 
     // ========================================
@@ -732,12 +762,12 @@
         : CONFIG.motionFallSmoothing;
       smoothMotion += (poseMotionIntensity - smoothMotion) * smoothing;
 
-      // Звук
-      if (smoothMotion > 0.05) {
-        initAudio();
-        playMotionSound(smoothMotion);
-      } else {
-        stopMotionSound();
+      if (appStarted) {
+        if (smoothMotion > 0.05) {
+          playMotionSound(smoothMotion);
+        } else {
+          stopMotionSound();
+        }
       }
 
       updateLetters(smoothMotion);
@@ -745,7 +775,7 @@
     }
 
     // ========================================
-    // ЗАПУСК КАМЕРЫ
+    // КАМЕРА
     // ========================================
     async function startCamera(deviceId) {
       try {
@@ -763,7 +793,7 @@
         activeCameraId = deviceId || null;
 
         webcamVideo.srcObject = stream;
-        debugVideo.srcObject = stream;
+        debugVideo.srcObject  = stream;
 
         statusEl.textContent = 'готово';
         setTimeout(function() {
@@ -772,9 +802,8 @@
         }, 800);
 
       } catch (err) {
-        statusEl.textContent   = 'ошибка: ' + err.name;
-        statusEl.style.opacity = '1';
-        statusEl.style.color   = 'rgba(255,100,100,0.8)';
+        statusEl.textContent = 'ошибка: ' + err.name;
+        statusEl.style.color = 'rgba(255,100,100,0.8)';
         console.error(err);
       }
     }
@@ -784,7 +813,6 @@
     // ========================================
     async function loadCameraList() {
       cameraList.innerHTML = '';
-
       try {
         await navigator.mediaDevices.getUserMedia({ video: true });
         var devices = await navigator.mediaDevices.enumerateDevices();
@@ -823,7 +851,7 @@
     }
 
     // ========================================
-    // ОТКРЫТЬ / ЗАКРЫТЬ МЕНЮ
+    // МЕНЮ
     // ========================================
     function openMenu() {
       overlay.classList.add('visible');
@@ -840,7 +868,7 @@
       debugWindow.classList.toggle('visible');
       if (debugWindow.classList.contains('visible')) {
         setTimeout(function() {
-          debugCanvas.width = debugVideo.offsetWidth;
+          debugCanvas.width  = debugVideo.offsetWidth;
           debugCanvas.height = debugVideo.offsetHeight;
         }, 100);
       }
@@ -854,7 +882,6 @@
     debugClose.addEventListener('click', function() {
       debugWindow.classList.remove('visible');
     });
-
     overlay.addEventListener('click', closeMenu);
     closeBtn.addEventListener('click', closeMenu);
 
@@ -880,15 +907,29 @@
     });
 
     // ========================================
+    // КНОПКА СТАРТА
+    // ========================================
+    startBtn.addEventListener('click', function() {
+      startBtn.style.opacity       = '0';
+      startBtn.style.pointerEvents = 'none';
+      setTimeout(function() { startBtn.style.display = 'none'; }, 400);
+
+      // Инициализируем аудио сразу после клика пользователя
+      initAudio();
+      appStarted = true;
+    });
+
+    // ========================================
     // ИНИЦИАЛИЗАЦИЯ
     // ========================================
     window.addEventListener('load', function() {
       initLetters();
       animate();
 
-      // Инициализируем MediaPipe Pose
-      const pose = new Pose({
-        locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`
+      var pose = new Pose({
+        locateFile: function(file) {
+          return 'https://cdn.jsdelivr.net/npm/@mediapipe/pose/' + file;
+        }
       });
 
       pose.setOptions({
@@ -902,19 +943,17 @@
 
       pose.onResults(onPoseResults);
 
-      // Запускаем камеру
       startCamera();
 
-      // Инициализируем Camera helper для MediaPipe
-      const camera = new Camera(webcamVideo, {
-        onFrame: async () => {
+      var cameraHelper = new Camera(webcamVideo, {
+        onFrame: async function() {
           await pose.send({ image: webcamVideo });
         },
         width: 640,
         height: 480
       });
 
-      camera.start();
+      cameraHelper.start();
     });
 
   </script>
