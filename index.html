@@ -353,38 +353,140 @@
     litLight.position.set(0, 0, 5);
     scene.add(litLight);
 
-    // ========================================
+        // ========================================
     // ИНИЦИАЛИЗАЦИЯ AUDIO
     // ========================================
+    var noiseBuffer = null;
+    var noiseNode = null;
+    var ambientOscillators = [];
+
     function initAudio() {
       if (!audioContext) {
         audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        createNoiseBuffer();
+        createAmbientOscillators();
       }
       if (audioContext.state === 'suspended') {
         audioContext.resume();
       }
     }
 
+    function createNoiseBuffer() {
+      var bufferSize = audioContext.sampleRate * 2;
+      var noiseBuffer = audioContext.createBuffer(1, bufferSize, audioContext.sampleRate);
+      var output = noiseBuffer.getChannelData(0);
+      for (var i = 0; i < bufferSize; i++) {
+        output[i] = Math.random() * 2 - 1;
+      }
+      window.noiseBuffer = noiseBuffer;
+    }
+
+    function createAmbientOscillators() {
+      if (ambientOscillators.length > 0) return;
+
+      var frequencies = [55, 110, 165]; // Низкие частоты для амбиента
+      var gainMaster = audioContext.createGain();
+      gainMaster.connect(audioContext.destination);
+      gainMaster.gain.value = 0;
+
+      frequencies.forEach(function(freq) {
+        var osc = audioContext.createOscillator();
+        var gain = audioContext.createGain();
+        var lfo = audioContext.createOscillator();
+        var lfoGain = audioContext.createGain();
+
+        osc.type = 'sine';
+        osc.frequency.value = freq;
+        lfo.type = 'sine';
+        lfo.frequency.value = 0.3 + Math.random() * 0.2;
+        lfoGain.gain.value = 5;
+
+        lfo.connect(lfoGain);
+        lfoGain.connect(osc.frequency);
+        osc.connect(gain);
+        gain.connect(gainMaster);
+
+        gain.gain.value = 0.05;
+
+        osc.start();
+        lfo.start();
+
+        ambientOscillators.push({ osc: osc, gain: gain, lfo: lfo });
+      });
+
+      window.ambientGainMaster = gainMaster;
+    }
+
     function playMotionSound(intensity) {
       if (!CONFIG.audioEnabled || !audioContext) return;
 
-      if (!oscillator) {
-        oscillator = audioContext.createOscillator();
-        gainNode = audioContext.createGain();
-        oscillator.connect(gainNode);
-        gainNode.connect(audioContext.destination);
-        oscillator.type = 'sine';
-        oscillator.start();
+      // === ТРЕЩАЩИЙ ШУМ ===
+      if (!noiseNode) {
+        noiseNode = audioContext.createBufferSource();
+        noiseNode.buffer = window.noiseBuffer;
+        noiseNode.loop = true;
+
+        var noiseGain = audioContext.createGain();
+        var noiseFilter = audioContext.createBiquadFilter();
+
+        noiseFilter.type = 'highpass';
+        noiseFilter.frequency.value = 2000;
+        noiseFilter.Q.value = 5;
+
+        noiseNode.connect(noiseFilter);
+        noiseFilter.connect(noiseGain);
+        noiseGain.connect(audioContext.destination);
+
+        noiseNode.start();
+        window.noiseGain = noiseGain;
+        window.noiseFilter = noiseFilter;
       }
 
-      var freq = CONFIG.audioFrequency + intensity * 300;
-      oscillator.frequency.setTargetAtTime(freq, audioContext.currentTime, 0.1);
-      gainNode.gain.setTargetAtTime(intensity * CONFIG.audioVolume, audioContext.currentTime, 0.1);
+      // Трещащий шум с хаотичными всплесками
+      var noiseIntensity = intensity * 0.3;
+      var randomSpike = Math.random() < intensity * 0.2 ? Math.random() * 0.5 : 0;
+      window.noiseGain.gain.setTargetAtTime(
+        noiseIntensity + randomSpike,
+        audioContext.currentTime,
+        0.05
+      );
+
+      // Фильтр движется с интенсивностью
+      window.noiseFilter.frequency.setTargetAtTime(
+        2000 + intensity * 3000,
+        audioContext.currentTime,
+        0.1
+      );
+
+      // === АМБИЕНТНЫЙ ФОН ===
+      if (window.ambientGainMaster) {
+        window.ambientGainMaster.gain.setTargetAtTime(
+          intensity * 0.15,
+          audioContext.currentTime,
+          0.3
+        );
+      }
+
+      // Модулируем амбиентные осцилляторы
+      ambientOscillators.forEach(function(item, idx) {
+        var modulation = Math.sin(audioContext.currentTime * (0.5 + idx * 0.1)) * intensity * 0.02;
+        item.gain.gain.setTargetAtTime(
+          0.05 + modulation,
+          audioContext.currentTime,
+          0.2
+        );
+      });
     }
 
     function stopMotionSound() {
-      if (gainNode) {
-        gainNode.gain.setTargetAtTime(0, audioContext.currentTime, 0.2);
+      if (!audioContext) return;
+
+      if (window.noiseGain) {
+        window.noiseGain.gain.setTargetAtTime(0, audioContext.currentTime, 0.3);
+      }
+
+      if (window.ambientGainMaster) {
+        window.ambientGainMaster.gain.setTargetAtTime(0, audioContext.currentTime, 0.5);
       }
     }
 
