@@ -740,8 +740,9 @@
       return new THREE.CanvasTexture(c);
     }
 
-    // ========================================
+        // ========================================
     // БУКВЫ — СОЗДАНИЕ
+    // Автоматически подбирает размер под экран
     // ========================================
     function initLetters() {
       letterMeshes.forEach(function(m) {
@@ -752,16 +753,81 @@
       });
       letterMeshes = [];
 
-      var chars      = CONFIG.text.split('');
-      var step       = CONFIG.letterSize + CONFIG.letterSpacing;
-      var totalWidth = chars.length * step - CONFIG.letterSpacing;
+      var chars = CONFIG.text.split('');
+
+      // Считаем сколько "слотов" занимает текст
+      // Пробел считаем как полный символ
+      var charCount = chars.length;
+
+      // Вычисляем видимую ширину сцены на Z=0
+      // Формула: ширина = 2 * tan(fov/2) * distanceToCamera * aspectRatio
+      var fovRad      = (45 * Math.PI) / 180;
+      var visibleH    = 2 * Math.tan(fovRad / 2) * camera.position.z;
+      var visibleW    = visibleH * (window.innerWidth / window.innerHeight);
+
+      // Оставляем 90% ширины под текст (по 5% отступ с каждой стороны)
+      var usableWidth = visibleW * 0.90;
+
+      // Размер одной буквы чтобы все влезли в одну строку
+      // letterSize + letterSpacing между каждой буквой
+      // Уравнение: charCount * size + (charCount - 1) * spacing = usableWidth
+      // Берём spacing = size * 0.115 (как раньше было соотношение 0.06/0.52)
+      var spacingRatio = 0.115;
+      var autoSize     = usableWidth / (charCount + (charCount - 1) * spacingRatio);
+
+      // На мобильном в портретной ориентации —
+      // текст будет мелкий в одну строку, разбиваем на две
+      var isMobilePortrait = window.innerWidth < 600 && window.innerHeight > window.innerWidth;
+
+      if (isMobilePortrait) {
+        // Разбиваем "Я ЗДЕСЬ БЫЛ" на две строки: "Я ЗДЕСЬ" и "БЫЛ"
+        // Ищем где примерно середина текста (по пробелу)
+        var words     = CONFIG.text.split(' ');
+        var line1     = words.slice(0, 2).join(' '); // "Я ЗДЕСЬ"
+        var line2     = words.slice(2).join(' ');    // "БЫЛ"
+        var maxLen    = Math.max(line1.length, line2.length);
+        autoSize      = usableWidth / (maxLen + (maxLen - 1) * spacingRatio);
+
+        // Ограничиваем минимальный и максимальный размер
+        autoSize = Math.max(0.15, Math.min(autoSize, 1.2));
+
+        var letterSpacing = autoSize * spacingRatio;
+        var step          = autoSize + letterSpacing;
+        var lineHeight    = autoSize * 1.4;
+
+        // Рисуем строку 1 — выше центра
+        renderLine(line1.split(''), step, autoSize, lineHeight * 0.5);
+        // Рисуем строку 2 — ниже центра
+        renderLine(line2.split(''), step, autoSize, -lineHeight * 0.5);
+
+      } else {
+        // Одна строка — десктоп или горизонтальный телефон
+        autoSize = Math.max(0.15, Math.min(autoSize, 1.2));
+
+        var letterSpacing = autoSize * spacingRatio;
+        var step          = autoSize + letterSpacing;
+
+        renderLine(chars, step, autoSize, 0);
+      }
+
+      // Сохраняем текущий размер в конфиг (нужен для физики)
+      CONFIG.letterSize    = autoSize;
+      CONFIG.letterSpacing = autoSize * spacingRatio;
+    }
+
+    // ========================================
+    // БУКВЫ — РЕНДЕР ОДНОЙ СТРОКИ
+    // Вспомогательная функция для initLetters
+    // ========================================
+    function renderLine(chars, step, size, offsetY) {
+      var totalWidth = chars.length * step - (size * 0.115);
       var startX     = -totalWidth / 2 + step / 2;
 
       chars.forEach(function(char, i) {
         if (char === ' ') { letterMeshes.push(null); return; }
 
         var mesh = new THREE.Mesh(
-          new THREE.PlaneGeometry(CONFIG.letterSize, CONFIG.letterSize),
+          new THREE.PlaneGeometry(size, size),
           new THREE.MeshBasicMaterial({
             map:         createLetterTexture(char),
             transparent: true,
@@ -771,11 +837,12 @@
         );
 
         var homeX = startX + i * step;
-        mesh.position.set(homeX, 0, 0);
+        var homeY = offsetY;
+        mesh.position.set(homeX, homeY, 0);
 
         mesh.userData = {
           homeX:         homeX,
-          homeY:         0,
+          homeY:         homeY,
           homeZ:         0,
           vx:            0,
           vy:            0,
@@ -1144,6 +1211,9 @@
     // ========================================
     // RESIZE
     // ========================================
+        // ========================================
+    // RESIZE — пересчитываем буквы под новый размер
+    // ========================================
     window.addEventListener('resize', function() {
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
@@ -1151,6 +1221,9 @@
       var aspect     = window.innerWidth / window.innerHeight;
       CONFIG.boundsX = 5.5 * aspect / (16 / 9);
       CONFIG.boundsY = 3.2;
+
+      // Пересоздаём буквы с новым размером
+      initLetters();
     });
 
     window.addEventListener('orientationchange', function() {
@@ -1161,6 +1234,9 @@
         var aspect     = window.innerWidth / window.innerHeight;
         CONFIG.boundsX = 5.5 * aspect / (16 / 9);
         CONFIG.boundsY = 3.2;
+
+        // Пересоздаём буквы под новую ориентацию
+        initLetters();
       }, 100);
     });
 
