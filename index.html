@@ -62,12 +62,8 @@
       background: rgba(255,255,255,0.08);
       border-color: rgba(255,255,255,0.6);
     }
-    #start-btn:disabled {
-      cursor: default;
-      pointer-events: none;
-    }
+    #start-btn:disabled { cursor: default; pointer-events: none; }
 
-    /* Угловые зоны */
     #debug-btn {
       position: fixed;
       bottom: max(0px, env(safe-area-inset-bottom));
@@ -86,7 +82,6 @@
       cursor: default; z-index: 101;
     }
 
-    /* Overlay */
     #overlay {
       position: fixed; inset: 0;
       background: rgba(0,0,0,0.6);
@@ -96,7 +91,6 @@
     }
     #overlay.visible { opacity: 1; pointer-events: all; }
 
-    /* Панели */
     .panel {
       position: fixed;
       top: 50%; left: 50%;
@@ -126,7 +120,6 @@
       margin-bottom: 16px; text-align: center;
     }
 
-    /* Режимы */
     #mode-list { display: flex; flex-direction: column; gap: 8px; }
 
     .mode-item {
@@ -163,12 +156,11 @@
       cursor: pointer;
     }
 
-    /* Debug — аудио визуализатор */
     #debug-window {
       position: fixed;
       top: max(16px, env(safe-area-inset-top));
       left: max(16px, env(safe-area-inset-left));
-      width: min(280px, 90vw);
+      width: min(300px, 92vw);
       background: rgba(15,15,15,0.95);
       border: 1px solid rgba(255,255,255,0.15);
       border-radius: 12px;
@@ -180,38 +172,39 @@
     #debug-window.visible { display: flex; }
 
     #debug-header {
-      padding: 12px;
-      border-bottom: 1px solid rgba(255,255,255,0.1);
+      padding: 12px 14px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
       display: flex; justify-content: space-between; align-items: center;
     }
     #debug-header h4 {
-      color: rgba(255,255,255,0.7);
-      font-size: 11px; font-weight: 400;
-      letter-spacing: 0.1em; text-transform: uppercase; margin: 0;
+      color: rgba(255,255,255,0.6);
+      font-size: 10px; font-weight: 400;
+      letter-spacing: 0.12em; text-transform: uppercase; margin: 0;
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
     }
     #debug-close {
       background: transparent; border: none;
-      color: rgba(255,255,255,0.4);
-      cursor: pointer; font-size: 16px;
+      color: rgba(255,255,255,0.3);
+      cursor: pointer; font-size: 15px;
       padding: 0; width: 24px; height: 24px;
+      display: flex; align-items: center; justify-content: center;
     }
 
-    /* Полоска уровня громкости */
     #debug-meter-wrap {
-      padding: 16px;
-      display: flex; flex-direction: column; gap: 10px;
+      padding: 14px 14px 10px;
+      display: flex; flex-direction: column; gap: 8px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
     }
-    .meter-row {
-      display: flex; align-items: center; gap: 10px;
-    }
+    .meter-row { display: flex; align-items: center; gap: 8px; }
     .meter-label {
-      color: rgba(255,255,255,0.3);
-      font-size: 10px; letter-spacing: 0.08em;
+      color: rgba(255,255,255,0.25);
+      font-size: 9px; letter-spacing: 0.08em;
       font-family: 'Courier New', monospace;
-      width: 60px; flex-shrink: 0;
+      width: 52px; flex-shrink: 0;
+      text-transform: uppercase;
     }
     .meter-bar-bg {
-      flex: 1; height: 4px;
+      flex: 1; height: 3px;
       background: rgba(255,255,255,0.07);
       border-radius: 2px; overflow: hidden;
     }
@@ -222,16 +215,65 @@
       transition: width 0.05s linear;
     }
     .meter-val {
+      color: rgba(255,255,255,0.25);
+      font-size: 9px;
+      font-family: 'Courier New', monospace;
+      width: 28px; text-align: right;
+    }
+
+    #sliders-wrap {
+      padding: 14px;
+      display: flex; flex-direction: column; gap: 14px;
+    }
+    .slider-row { display: flex; flex-direction: column; gap: 5px; }
+    .slider-top { display: flex; justify-content: space-between; align-items: baseline; }
+    .slider-name {
+      color: rgba(255,255,255,0.5);
+      font-size: 10px; letter-spacing: 0.08em;
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      text-transform: uppercase;
+    }
+    .slider-value {
       color: rgba(255,255,255,0.3);
       font-size: 10px;
       font-family: 'Courier New', monospace;
-      width: 32px; text-align: right;
+    }
+    .slider-desc {
+      color: rgba(255,255,255,0.18);
+      font-size: 9px;
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      letter-spacing: 0.03em;
+      margin-bottom: 2px;
     }
 
-    #debug-info {
-      padding: 0 16px 14px;
-      font-size: 11px;
-      color: rgba(255,255,255,0.35);
+    input[type=range] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%; height: 3px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 2px;
+      outline: none; cursor: pointer;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 14px; height: 14px;
+      border-radius: 50%;
+      background: #ff2200;
+      cursor: pointer; border: none;
+      box-shadow: 0 0 6px rgba(255,34,0,0.4);
+    }
+    input[type=range]::-moz-range-thumb {
+      width: 14px; height: 14px;
+      border-radius: 50%;
+      background: #ff2200;
+      cursor: pointer; border: none;
+    }
+
+    #debug-status {
+      padding: 0 14px 12px;
+      font-size: 9px;
+      color: rgba(255,255,255,0.2);
       font-family: 'Courier New', monospace;
       line-height: 1.7;
     }
@@ -243,14 +285,11 @@
   <div id="status">инициализация...</div>
   <div id="mode-indicator">способ 1</div>
 
-  <!-- Угловые зоны -->
   <button id="debug-btn"></button>
   <button id="mode-btn"></button>
 
-  <!-- Overlay -->
   <div id="overlay"></div>
 
-  <!-- Панель режимов -->
   <div id="mode-menu" class="panel">
     <h3>способ</h3>
     <div id="mode-list">
@@ -266,10 +305,9 @@
     <button class="close-panel-btn" id="close-mode-btn">закрыть</button>
   </div>
 
-  <!-- Debug — аудио -->
   <div id="debug-window">
     <div id="debug-header">
-      <h4>аудио анализ</h4>
+      <h4>аудио / настройки</h4>
       <button id="debug-close">✕</button>
     </div>
     <div id="debug-meter-wrap">
@@ -289,48 +327,88 @@
         <div class="meter-val" id="val-chaos">0</div>
       </div>
     </div>
-    <div id="debug-info">
-      <div id="dbg-mode">Способ: —</div>
-      <div id="dbg-mic">Микрофон: ожидание</div>
-      <div id="dbg-threshold">Порог: —</div>
+    <div id="sliders-wrap">
+      <div class="slider-row">
+        <div class="slider-top">
+          <span class="slider-name">порог тишины</span>
+          <span class="slider-value" id="val-floor">6</span>
+        </div>
+        <div class="slider-desc">выше = игнорирует больше фонового шума</div>
+        <input type="range" id="sl-floor" min="1" max="20" step="1" value="6">
+      </div>
+      <div class="slider-row">
+        <div class="slider-top">
+          <span class="slider-name">чувствительность</span>
+          <span class="slider-value" id="val-gain">9</span>
+        </div>
+        <div class="slider-desc">усиление сигнала микрофона</div>
+        <input type="range" id="sl-gain" min="1" max="20" step="1" value="9">
+      </div>
+      <div class="slider-row">
+        <div class="slider-top">
+          <span class="slider-name">амплитуда</span>
+          <span class="slider-value" id="val-impulse">55</span>
+        </div>
+        <div class="slider-desc">сила разлёта букв при звуке</div>
+        <input type="range" id="sl-impulse" min="5" max="150" step="5" value="55">
+      </div>
+      <div class="slider-row">
+        <div class="slider-top">
+          <span class="slider-name">пружинистость</span>
+          <span class="slider-value" id="val-spring">18</span>
+        </div>
+        <div class="slider-desc">скорость возврата на место</div>
+        <input type="range" id="sl-spring" min="1" max="60" step="1" value="18">
+      </div>
+      <div class="slider-row">
+        <div class="slider-top">
+          <span class="slider-name">инерция</span>
+          <span class="slider-value" id="val-friction">972</span>
+        </div>
+        <div class="slider-desc">плавность торможения букв</div>
+        <input type="range" id="sl-friction" min="900" max="998" step="2" value="972">
+      </div>
+    </div>
+    <div id="debug-status">
+      <div id="dbg-mic">микрофон: ожидание</div>
+      <div id="dbg-mode">способ: 1</div>
     </div>
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-
   <script>
+
     // ========================================
     // КОНФИГ
     // ========================================
     var CONFIG = {
       text: 'Я ЗДЕСЬ БЫЛ',
-      letterSize: 0.52,
-      letterSpacing: 0.06,
 
-      impulseStrength: 0.012,
-      friction:        0.988,
-      returnForce:     0.0004,
-      maxSpeed:        0.09,
+      impulseStrength: 0.055,
+      friction:        0.972,
+      returnForce:     0.018,
+      maxSpeed:        0.40,
 
-      rotImpulse:  0.012,
-      rotFriction: 0.985,
-      rotReturn:   0.0004,
+      rotImpulse:  0.028,
+      rotFriction: 0.965,
+      rotReturn:   0.018,
 
       maxZ:     3.5,
-      zImpulse: 0.018,
+      zImpulse: 0.038,
 
-      // Сглаживание аудио-сигнала
-      audioRiseSmoothing: 0.25,   // быстро реагирует на звук
-      audioFallSmoothing: 0.04,   // медленно затухает
+      // отскок от стен
+      wallBounceDamping: 0.6,
 
-      // Порог шума микрофона (0–1)
-      // Всё ниже — тишина, игнорируем
-      audioNoiseFloor: 0.02,
+      // коллизии между буквами
+      letterCollision: true,
+      collisionDamping: 0.5,
 
-      // Усиление сигнала (RMS обычно 0.01–0.3)
-      audioGain: 3.5,
+      audioRiseSmoothing: 0.95,
+      audioFallSmoothing: 0.18,
+      audioNoiseFloor:    0.06,
+      audioGain:          9.0,
 
-      litIntensity:   0.8,
+      litIntensity:    0.8,
       litDisplacement: 0.15,
 
       boundsX: 5.5,
@@ -342,17 +420,17 @@
     // ========================================
     // DOM
     // ========================================
-    var statusEl       = document.getElementById('status');
-    var modeIndicator  = document.getElementById('mode-indicator');
-    var startBtn       = document.getElementById('start-btn');
-    var debugBtn       = document.getElementById('debug-btn');
-    var modeBtn        = document.getElementById('mode-btn');
-    var overlay        = document.getElementById('overlay');
-    var modeMenuEl     = document.getElementById('mode-menu');
-    var closeModeBtn   = document.getElementById('close-mode-btn');
-    var debugWindow    = document.getElementById('debug-window');
-    var debugClose     = document.getElementById('debug-close');
-    var modeItems      = document.querySelectorAll('.mode-item');
+    var statusEl      = document.getElementById('status');
+    var modeIndicator = document.getElementById('mode-indicator');
+    var startBtn      = document.getElementById('start-btn');
+    var debugBtn      = document.getElementById('debug-btn');
+    var modeBtn       = document.getElementById('mode-btn');
+    var overlay       = document.getElementById('overlay');
+    var modeMenuEl    = document.getElementById('mode-menu');
+    var closeModeBtn  = document.getElementById('close-mode-btn');
+    var debugWindow   = document.getElementById('debug-window');
+    var debugClose    = document.getElementById('debug-close');
+    var modeItems     = document.querySelectorAll('.mode-item');
 
     var barRaw    = document.getElementById('bar-raw');
     var barSmooth = document.getElementById('bar-smooth');
@@ -360,33 +438,52 @@
     var valRaw    = document.getElementById('val-raw');
     var valSmooth = document.getElementById('val-smooth');
     var valChaos  = document.getElementById('val-chaos');
-    var dbgMode      = document.getElementById('dbg-mode');
-    var dbgMic       = document.getElementById('dbg-mic');
-    var dbgThreshold = document.getElementById('dbg-threshold');
+    var dbgMic    = document.getElementById('dbg-mic');
+    var dbgMode   = document.getElementById('dbg-mode');
+
+    var slFloor    = document.getElementById('sl-floor');
+    var slGain     = document.getElementById('sl-gain');
+    var slImpulse  = document.getElementById('sl-impulse');
+    var slSpring   = document.getElementById('sl-spring');
+    var slFriction = document.getElementById('sl-friction');
+
+    var valFloor    = document.getElementById('val-floor');
+    var valGain     = document.getElementById('val-gain');
+    var valImpulse  = document.getElementById('val-impulse');
+    var valSpring   = document.getElementById('val-spring');
+    var valFriction = document.getElementById('val-friction');
 
     // ========================================
-    // СОСТОЯНИЕ
+    // СЛАЙДЕРЫ
     // ========================================
-    var letterMeshes        = [];
-    var time                = 0;
-    var appStarted          = false;
-    var currentMode         = 1;
-
-    var rawAudioLevel       = 0;   // RMS прямо с анализатора
-    var smoothAudio         = 0;   // сглаженный сигнал
-    var autonomousIntensity = 0;   // для режима 2
-
-    // Web Audio
-    var audioContext  = null;
-    var analyser      = null;
-    var dataArray     = null;
-    var micStream     = null;
-
-    // Генеративный звук (выход)
-    var masterGain    = null;
-    var noiseSource   = null;
-    var noiseGain     = null;
-    var crackleTimeout = null;
+    slFloor.addEventListener('input', function() {
+      var v = parseInt(this.value);
+      valFloor.textContent   = v;
+      CONFIG.audioNoiseFloor = v / 100;
+    });
+    slGain.addEventListener('input', function() {
+      var v = parseInt(this.value);
+      valGain.textContent = v;
+      CONFIG.audioGain    = v;
+    });
+    slImpulse.addEventListener('input', function() {
+      var v = parseInt(this.value);
+      valImpulse.textContent = v;
+      CONFIG.impulseStrength = v / 1000;
+      CONFIG.rotImpulse      = v / 1000 * 0.5;
+    });
+    slSpring.addEventListener('input', function() {
+      var v = parseInt(this.value);
+      valSpring.textContent = v;
+      CONFIG.returnForce    = v / 1000;
+      CONFIG.rotReturn      = v / 1000;
+    });
+    slFriction.addEventListener('input', function() {
+      var v = parseInt(this.value);
+      valFriction.textContent = v;
+      CONFIG.friction         = v / 1000;
+      CONFIG.rotFriction      = Math.max(0.9, v / 1000 - 0.007);
+    });
 
     // ========================================
     // THREE.JS
@@ -409,7 +506,33 @@
     scene.add(litLight);
 
     // ========================================
-    // МИКРОФОН — ИНИЦИАЛИЗАЦИЯ
+    // СОСТОЯНИЕ
+    // ========================================
+    var letterMeshes        = [];
+    var time                = 0;
+    var appStarted          = false;
+    var currentMode         = 1;
+    var rawAudioLevel       = 0;
+    var smoothAudio         = 0;
+    var autonomousIntensity = 0;
+
+    var audioContext = null;
+    var analyser     = null;
+    var dataArray    = null;
+
+    // ========================================
+    // ГРАНИЦЫ — пересчёт из пикселей в мировые координаты
+    // ========================================
+    function calcBounds() {
+      var fovRad   = (45 * Math.PI) / 180;
+      var visibleH = 2 * Math.tan(fovRad / 2) * camera.position.z;
+      var visibleW = visibleH * (window.innerWidth / window.innerHeight);
+      CONFIG.boundsX = visibleW / 2 * 0.97;
+      CONFIG.boundsY = visibleH / 2 * 0.97;
+    }
+
+    // ========================================
+    // МИКРОФОН
     // ========================================
     async function initMicrophone() {
       try {
@@ -418,9 +541,7 @@
         statusEl.style.display = 'block';
 
         var stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
-        micStream  = stream;
 
-        // AudioContext создаём здесь — после жеста пользователя
         if (!audioContext) {
           audioContext = new (window.AudioContext || window.webkitAudioContext)();
         }
@@ -428,21 +549,12 @@
           await audioContext.resume();
         }
 
-        // Источник — микрофон
         var source = audioContext.createMediaStreamSource(stream);
-
-        // Анализатор
-        analyser = audioContext.createAnalyser();
-        analyser.fftSize = 256;                 // 128 бинов
-        analyser.smoothingTimeConstant = 0.5;   // встроенное сглаживание
+        analyser   = audioContext.createAnalyser();
+        analyser.fftSize = 256;
+        analyser.smoothingTimeConstant = 0.3;
         source.connect(analyser);
-        // НЕ коннектим к destination — не слышим себя
-
         dataArray = new Uint8Array(analyser.fftSize);
-
-        // Запускаем генеративный звук
-        initOutputAudio();
-        scheduleCrackle();
 
         statusEl.textContent = 'готово';
         setTimeout(function() {
@@ -450,43 +562,36 @@
           setTimeout(function() { statusEl.style.display = 'none'; }, 1000);
         }, 800);
 
-        if (dbgMic) dbgMic.textContent = 'Микрофон: активен';
+        dbgMic.textContent = 'микрофон: активен';
 
       } catch (err) {
         statusEl.textContent = 'нет доступа к микрофону';
         statusEl.style.color = 'rgba(255,100,100,0.8)';
+        dbgMic.textContent   = 'микрофон: ' + err.name;
         console.error(err);
-        if (dbgMic) dbgMic.textContent = 'Микрофон: ' + err.name;
       }
     }
 
     // ========================================
-    // МИКРОФОН — ЧИТАЕМ УРОВЕНЬ (RMS)
-    // Вызывается каждый кадр
+    // УРОВЕНЬ ЗВУКА
     // ========================================
     function readAudioLevel() {
       if (!analyser || !dataArray) return;
-
       analyser.getByteTimeDomainData(dataArray);
 
-      // RMS по временному домену
       var sum = 0;
       for (var i = 0; i < dataArray.length; i++) {
-        var normalized = (dataArray[i] - 128) / 128; // -1..+1
-        sum += normalized * normalized;
+        var n = (dataArray[i] - 128) / 128;
+        sum += n * n;
       }
       var rms = Math.sqrt(sum / dataArray.length);
-
-      // Применяем усиление и clamp
       rawAudioLevel = Math.min(1, rms * CONFIG.audioGain);
 
-      // Сглаживание: быстрый подъём, медленное падение
       var smoothing = rawAudioLevel > smoothAudio
         ? CONFIG.audioRiseSmoothing
         : CONFIG.audioFallSmoothing;
       smoothAudio += (rawAudioLevel - smoothAudio) * smoothing;
 
-      // Обновляем debug
       if (debugWindow.classList.contains('visible')) {
         var chaosNow = currentMode === 1 ? smoothAudio : autonomousIntensity;
         barRaw.style.width    = (rawAudioLevel * 100).toFixed(1) + '%';
@@ -495,94 +600,8 @@
         valRaw.textContent    = (rawAudioLevel * 100).toFixed(0);
         valSmooth.textContent = (smoothAudio   * 100).toFixed(0);
         valChaos.textContent  = (chaosNow      * 100).toFixed(0);
-        dbgMode.textContent      = 'Способ: ' + currentMode;
-        dbgThreshold.textContent = 'Порог: ' + (CONFIG.audioNoiseFloor * 100).toFixed(0);
+        dbgMode.textContent   = 'способ: ' + currentMode;
       }
-    }
-
-    // ========================================
-    // ГЕНЕРАТИВНЫЙ ЗВУК — ВЫХОД
-    // ========================================
-    function initOutputAudio() {
-      var bufferSize = audioContext.sampleRate * 2;
-      var buffer     = audioContext.createBuffer(1, bufferSize, audioContext.sampleRate);
-      var data       = buffer.getChannelData(0);
-      for (var i = 0; i < bufferSize; i++) {
-        data[i] = Math.random() * 2 - 1;
-      }
-
-      noiseSource        = audioContext.createBufferSource();
-      noiseSource.buffer = buffer;
-      noiseSource.loop   = true;
-
-      var bandpass             = audioContext.createBiquadFilter();
-      bandpass.type            = 'bandpass';
-      bandpass.frequency.value = 1200;
-      bandpass.Q.value         = 0.5;
-
-      var lowshelf             = audioContext.createBiquadFilter();
-      lowshelf.type            = 'lowshelf';
-      lowshelf.frequency.value = 300;
-      lowshelf.gain.value      = 8;
-
-      noiseGain            = audioContext.createGain();
-      noiseGain.gain.value = 0;
-
-      masterGain            = audioContext.createGain();
-      masterGain.gain.value = 0.4;
-      masterGain.connect(audioContext.destination);
-
-      noiseSource.connect(bandpass);
-      bandpass.connect(lowshelf);
-      lowshelf.connect(noiseGain);
-      noiseGain.connect(masterGain);
-
-      noiseSource.start();
-    }
-
-    function scheduleCrackle() {
-      var delay = 3000 + Math.random() * 4000;
-      crackleTimeout = setTimeout(function() {
-        if (appStarted) playCrackle();
-        scheduleCrackle();
-      }, delay);
-    }
-
-    function playCrackle() {
-      if (!audioContext || !masterGain) return;
-      var buf  = audioContext.createBuffer(1, audioContext.sampleRate * 0.08, audioContext.sampleRate);
-      var d    = buf.getChannelData(0);
-      for (var i = 0; i < d.length; i++) {
-        var p = i / d.length;
-        d[i]  = (Math.random() * 2 - 1) * Math.pow(1 - p, 3) * Math.min(1, p * 20);
-      }
-      var src  = audioContext.createBufferSource();
-      src.buffer = buf;
-      var g    = audioContext.createGain();
-      g.gain.value = 0.3 + Math.random() * 0.5;
-      src.connect(g);
-      g.connect(masterGain);
-      src.start();
-    }
-
-    // ========================================
-    // ЗВУК — УПРАВЛЕНИЕ ГРОМКОСТЬЮ ШУМА
-    // ========================================
-    function updateSound() {
-      if (!audioContext || !noiseGain) return;
-
-      var target;
-      if (currentMode === 1) {
-        // Громче когда звук есть
-        target = smoothAudio > CONFIG.audioNoiseFloor ? smoothAudio * 0.6 : 0;
-      } else {
-        // Громче в тишине, тише при звуке
-        target = (1 - smoothAudio) * 0.5;
-      }
-
-      noiseGain.gain.setTargetAtTime(target, audioContext.currentTime,
-        smoothAudio > CONFIG.audioNoiseFloor ? 0.3 : 0.8
-      );
     }
 
     // ========================================
@@ -626,20 +645,19 @@
       var isMobilePortrait = window.innerWidth < 600 && window.innerHeight > window.innerWidth;
 
       if (isMobilePortrait) {
-        var words  = CONFIG.text.split(' ');
-        var line1  = words.slice(0, 2).join(' ');
-        var line2  = words.slice(2).join(' ');
-        var maxLen = Math.max(line1.length, line2.length);
-        autoSize   = usableWidth / (maxLen + (maxLen - 1) * spacingRatio);
-        autoSize   = Math.max(0.15, Math.min(autoSize, 1.2));
-
+        var words      = CONFIG.text.split(' ');
+        var line1      = words.slice(0, 2).join(' ');
+        var line2      = words.slice(2).join(' ');
+        var maxLen     = Math.max(line1.length, line2.length);
+        autoSize       = usableWidth / (maxLen + (maxLen - 1) * spacingRatio);
+        autoSize       = Math.max(0.15, Math.min(autoSize, 1.2));
         var step       = autoSize + autoSize * spacingRatio;
         var lineHeight = autoSize * 1.4;
         renderLine(line1.split(''), step, autoSize,  lineHeight * 0.5);
         renderLine(line2.split(''), step, autoSize, -lineHeight * 0.5);
       } else {
-        autoSize = Math.max(0.15, Math.min(autoSize, 1.2));
-        var step = autoSize + autoSize * spacingRatio;
+        autoSize     = Math.max(0.15, Math.min(autoSize, 1.2));
+        var step     = autoSize + autoSize * spacingRatio;
         renderLine(chars, step, autoSize, 0);
       }
 
@@ -672,8 +690,9 @@
           homeX: homeX, homeY: homeY, homeZ: 0,
           vx: 0, vy: 0, vz: 0,
           vRotZ: 0, vRotX: 0,
-          mass:       0.8 + Math.random() * 0.4,
-          litPhase:   Math.random() * Math.PI * 2,
+          mass:          0.8 + Math.random() * 0.4,
+          radius:        size * 0.45,
+          litPhase:      Math.random() * Math.PI * 2,
           glitchTimer:   0,
           glitchOffsetX: 0,
           glitchOffsetY: 0,
@@ -685,23 +704,75 @@
     }
 
     // ========================================
+    // КОЛЛИЗИИ МЕЖДУ БУКВАМИ
+    // ========================================
+    function resolveCollisions() {
+      var active = letterMeshes.filter(function(m) { return m !== null; });
+
+      for (var i = 0; i < active.length; i++) {
+        for (var j = i + 1; j < active.length; j++) {
+          var a  = active[i];
+          var b  = active[j];
+          var ud = a.userData;
+          var vd = b.userData;
+
+          var dx   = b.position.x - a.position.x;
+          var dy   = b.position.y - a.position.y;
+          var dist = Math.sqrt(dx * dx + dy * dy);
+          var minD = (ud.radius + vd.radius) * 0.85;
+
+          if (dist < minD && dist > 0.0001) {
+            // нормаль столкновения
+            var nx = dx / dist;
+            var ny = dy / dist;
+
+            // разделяем буквы чтобы не перекрывались
+            var overlap = (minD - dist) * 0.5;
+            a.position.x -= nx * overlap;
+            a.position.y -= ny * overlap;
+            b.position.x += nx * overlap;
+            b.position.y += ny * overlap;
+
+            // относительная скорость
+            var dvx = vd.vx - ud.vx;
+            var dvy = vd.vy - ud.vy;
+            var dot  = dvx * nx + dvy * ny;
+
+            // только если сближаются
+            if (dot < 0) {
+              var impulse = dot * CONFIG.collisionDamping;
+              var ma = ud.mass;
+              var mb = vd.mass;
+              var total = ma + mb;
+
+              ud.vx += (2 * mb / total) * impulse * nx;
+              ud.vy += (2 * mb / total) * impulse * ny;
+              vd.vx -= (2 * ma / total) * impulse * nx;
+              vd.vy -= (2 * ma / total) * impulse * ny;
+
+              // небольшое вращение при столкновении
+              ud.vRotZ += (Math.random() - 0.5) * 0.02;
+              vd.vRotZ += (Math.random() - 0.5) * 0.02;
+            }
+          }
+        }
+      }
+    }
+
+    // ========================================
     // БУКВЫ — ФИЗИКА
     // ========================================
     function updateLetters() {
       time += 0.016;
 
-      // Определяем интенсивность хаоса по режиму
       var chaosIntensity;
 
       if (currentMode === 1) {
-        // Режим 1: звук → хаос
         var aboveFloor = Math.max(0, smoothAudio - CONFIG.audioNoiseFloor);
         chaosIntensity = Math.min(1, aboveFloor / (1 - CONFIG.audioNoiseFloor));
-
       } else {
-        // Режим 2: тишина → хаос, звук        // → покой
-        var soundPresence  = Math.min(1, smoothAudio * 4);
-        var targetAuto     = 1 - soundPresence;
+        var soundPresence = Math.min(1, smoothAudio * 4);
+        var targetAuto    = 1 - soundPresence;
         autonomousIntensity += (targetAuto - autonomousIntensity) * 0.03;
         chaosIntensity = autonomousIntensity;
       }
@@ -710,8 +781,8 @@
         if (!mesh) return;
         var ud = mesh.userData;
 
-        // === ИМПУЛЬС ОТ ХАОСА ===
-        if (chaosIntensity > 0.01 && Math.random() < chaosIntensity * 0.4) {
+        // ИМПУЛЬС
+        if (chaosIntensity > 0.01 && Math.random() < chaosIntensity * 0.85) {
           var s = CONFIG.impulseStrength / ud.mass;
           ud.vx    += (Math.random() - 0.5) * s * 2;
           ud.vy    += (Math.random() - 0.5) * s * 2;
@@ -720,7 +791,7 @@
           ud.vRotX += (Math.random() - 0.5) * CONFIG.rotImpulse * 0.5 / ud.mass;
         }
 
-        // === ПРИТЯЖЕНИЕ К ДОМУ ===
+        // ПРИТЯЖЕНИЕ К ДОМУ
         var returnMult = (currentMode === 2)
           ? (1 + (1 - autonomousIntensity) * 10)
           : 1;
@@ -731,7 +802,7 @@
         ud.vRotZ += -mesh.rotation.z * CONFIG.rotReturn * returnMult;
         ud.vRotX += -mesh.rotation.x * CONFIG.rotReturn * returnMult;
 
-        // === ТРЕНИЕ ===
+        // ТРЕНИЕ
         var frictionMult = (currentMode === 2)
           ? Math.max(0.92, CONFIG.friction - (1 - autonomousIntensity) * 0.04)
           : CONFIG.friction;
@@ -742,45 +813,56 @@
         ud.vRotZ *= CONFIG.rotFriction;
         ud.vRotX *= CONFIG.rotFriction;
 
-        // === ОГРАНИЧЕНИЕ СКОРОСТИ ===
+        // ОГРАНИЧЕНИЕ СКОРОСТИ
         var speed = Math.sqrt(ud.vx * ud.vx + ud.vy * ud.vy);
         if (speed > CONFIG.maxSpeed) {
           ud.vx = (ud.vx / speed) * CONFIG.maxSpeed;
           ud.vy = (ud.vy / speed) * CONFIG.maxSpeed;
         }
 
-        // === ПРИМЕНЯЕМ СКОРОСТЬ ===
+        // ПРИМЕНЯЕМ СКОРОСТЬ
         mesh.position.x += ud.vx;
         mesh.position.y += ud.vy;
         mesh.position.z += ud.vz;
 
-        // === ОТСКОК ОТ ГРАНИЦ ===
-        if (mesh.position.x > CONFIG.boundsX) {
-          mesh.position.x = CONFIG.boundsX; ud.vx *= -0.6;
-        } else if (mesh.position.x < -CONFIG.boundsX) {
-          mesh.position.x = -CONFIG.boundsX; ud.vx *= -0.6;
+        // ОТСКОК ОТ ГРАНИЦ — динамический
+        var r = ud.radius;
+
+        if (mesh.position.x + r > CONFIG.boundsX) {
+          mesh.position.x = CONFIG.boundsX - r;
+          ud.vx *= -CONFIG.wallBounceDamping;
+          ud.vRotZ += (Math.random() - 0.5) * 0.03;
+        } else if (mesh.position.x - r < -CONFIG.boundsX) {
+          mesh.position.x = -CONFIG.boundsX + r;
+          ud.vx *= -CONFIG.wallBounceDamping;
+          ud.vRotZ += (Math.random() - 0.5) * 0.03;
         }
-        if (mesh.position.y > CONFIG.boundsY) {
-          mesh.position.y = CONFIG.boundsY; ud.vy *= -0.6;
-        } else if (mesh.position.y < -CONFIG.boundsY) {
-          mesh.position.y = -CONFIG.boundsY; ud.vy *= -0.6;
+
+        if (mesh.position.y + r > CONFIG.boundsY) {
+          mesh.position.y = CONFIG.boundsY - r;
+          ud.vy *= -CONFIG.wallBounceDamping;
+          ud.vRotZ += (Math.random() - 0.5) * 0.03;
+        } else if (mesh.position.y - r < -CONFIG.boundsY) {
+          mesh.position.y = -CONFIG.boundsY + r;
+          ud.vy *= -CONFIG.wallBounceDamping;
+          ud.vRotZ += (Math.random() - 0.5) * 0.03;
         }
+
         if (Math.abs(mesh.position.z) > CONFIG.maxZ) {
           mesh.position.z = Math.sign(mesh.position.z) * CONFIG.maxZ;
           ud.vz *= -0.3;
         }
 
-        // === ВРАЩЕНИЕ ===
+        // ВРАЩЕНИЕ
         mesh.rotation.z += ud.vRotZ;
         mesh.rotation.x += ud.vRotX;
 
-        // === ВОЛНОВОЕ СМЕЩЕНИЕ ===
+        // ВОЛНОВОЕ СМЕЩЕНИЕ
         mesh.position.x += Math.sin(time * 2 + ud.litPhase) * CONFIG.litDisplacement * chaosIntensity * 0.02;
         mesh.position.y += Math.cos(time * 1.5 + ud.litPhase) * CONFIG.litDisplacement * chaosIntensity * 0.015;
 
-        // === ГЛИТЧ ===
+        // ГЛИТЧ
         ud.glitchTimer -= 1;
-
         if (chaosIntensity > 0.3 && speed > CONFIG.maxSpeed * 0.5 && Math.random() < 0.03) {
           ud.glitchTimer   = 2 + Math.floor(Math.random() * 3);
           ud.glitchOffsetX = (Math.random() - 0.5) * 0.3 * chaosIntensity;
@@ -801,6 +883,11 @@
 
         litLight.intensity = chaosIntensity * CONFIG.litIntensity;
       });
+
+      // КОЛЛИЗИИ МЕЖДУ БУКВАМИ
+      if (CONFIG.letterCollision) {
+        resolveCollisions();
+      }
     }
 
     // ========================================
@@ -810,7 +897,6 @@
       requestAnimationFrame(animate);
       if (appStarted) {
         readAudioLevel();
-        updateSound();
       }
       updateLetters();
       renderer.render(scene, camera);
@@ -889,13 +975,13 @@
     });
 
     // ========================================
-    // RESIZE
+    // RESIZE — пересчитываем границы мгновенно
     // ========================================
     window.addEventListener('resize', function() {
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
       renderer.setSize(window.innerWidth, window.innerHeight);
-      CONFIG.boundsX = 5.5 * (window.innerWidth / window.innerHeight) / (16 / 9);
+      calcBounds();
       initLetters();
     });
 
@@ -904,7 +990,7 @@
         camera.aspect = window.innerWidth / window.innerHeight;
         camera.updateProjectionMatrix();
         renderer.setSize(window.innerWidth, window.innerHeight);
-        CONFIG.boundsX = 5.5 * (window.innerWidth / window.innerHeight) / (16 / 9);
+        calcBounds();
         initLetters();
       }, 100);
     });
@@ -924,12 +1010,12 @@
     // ИНИЦИАЛИЗАЦИЯ
     // ========================================
     window.addEventListener('load', function() {
-      CONFIG.boundsX = 5.5 * (window.innerWidth / window.innerHeight) / (16 / 9);
-      CONFIG.boundsY = 3.2;
+      calcBounds();
 
       startBtn.disabled      = true;
       startBtn.textContent   = 'загрузка...';
       startBtn.style.opacity = '0.4';
+      startBtn.style.cursor  = 'default';
 
       document.fonts.load('400 64px Rubik Mono One').then(function() {
         startBtn.disabled      = false;
