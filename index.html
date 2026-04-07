@@ -26,7 +26,6 @@
       white-space: nowrap;
     }
 
-    /* Индикатор способа — верхний левый угол */
     #mode-indicator {
       position: fixed;
       top: max(16px, env(safe-area-inset-top));
@@ -68,63 +67,36 @@
       pointer-events: none;
     }
 
-    /* ==============================
-       ЧЕТЫРЕ УГЛОВЫЕ ЗОНЫ
-    ============================== */
-
-    /* Нижний левый — дебаг камера */
+    /* Угловые зоны */
     #debug-btn {
       position: fixed;
       bottom: max(0px, env(safe-area-inset-bottom));
       left: max(0px, env(safe-area-inset-left));
       width: 60px; height: 60px;
-      background: transparent;
-      border: none;
-      cursor: default;
-      z-index: 101;
+      background: transparent; border: none;
+      cursor: default; z-index: 101;
     }
 
-    /* Нижний правый — настройки камеры */
-    #settings-btn {
-      position: fixed;
-      bottom: max(0px, env(safe-area-inset-bottom));
-      right: max(0px, env(safe-area-inset-right));
-      width: 60px; height: 60px;
-      background: transparent;
-      border: none;
-      cursor: default;
-      z-index: 101;
-    }
-
-    /* Верхний правый — переключение способов */
     #mode-btn {
       position: fixed;
       top: max(0px, env(safe-area-inset-top));
       right: max(0px, env(safe-area-inset-right));
       width: 60px; height: 60px;
-      background: transparent;
-      border: none;
-      cursor: default;
-      z-index: 101;
+      background: transparent; border: none;
+      cursor: default; z-index: 101;
     }
 
-    /* ==============================
-       OVERLAY
-    ============================== */
+    /* Overlay */
     #overlay {
-      position: fixed;
-      inset: 0;
+      position: fixed; inset: 0;
       background: rgba(0,0,0,0.6);
-      z-index: 200;
-      opacity: 0;
+      z-index: 200; opacity: 0;
       pointer-events: none;
       transition: opacity 0.3s;
     }
     #overlay.visible { opacity: 1; pointer-events: all; }
 
-    /* ==============================
-       ОБЩИЕ СТИЛИ ПАНЕЛЕЙ
-    ============================== */
+    /* Панели */
     .panel {
       position: fixed;
       top: 50%; left: 50%;
@@ -136,62 +108,29 @@
       width: min(300px, 90vw);
       max-height: 80vh;
       z-index: 201;
-      opacity: 0;
-      pointer-events: none;
+      opacity: 0; pointer-events: none;
       transition: opacity 0.3s, transform 0.3s;
       backdrop-filter: blur(20px);
       overflow-y: auto;
     }
     .panel.visible {
-      opacity: 1;
-      pointer-events: all;
+      opacity: 1; pointer-events: all;
       transform: translate(-50%, -50%) scale(1);
     }
     .panel h3 {
       color: rgba(255,255,255,0.7);
-      font-size: 11px;
-      font-weight: 400;
+      font-size: 11px; font-weight: 400;
       letter-spacing: 0.15em;
       text-transform: uppercase;
       font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-      margin-bottom: 16px;
-      text-align: center;
+      margin-bottom: 16px; text-align: center;
     }
 
-    /* ==============================
-       МЕНЮ КАМЕРЫ
-    ============================== */
-    #camera-list { display: flex; flex-direction: column; gap: 8px; }
-
-    .camera-item {
-      padding: 11px 14px;
-      border-radius: 8px;
-      border: 1px solid rgba(255,255,255,0.08);
-      background: rgba(255,255,255,0.03);
-      color: rgba(255,255,255,0.5);
-      font-size: 12px;
-      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-      cursor: pointer;
-      transition: background 0.2s, border-color 0.2s, color 0.2s;
-      text-align: left;
-      letter-spacing: 0.04em;
-      width: 100%;
-    }
-    .camera-item:active { background: rgba(255,255,255,0.12); }
-    .camera-item.active {
-      background: rgba(255,255,255,0.1);
-      border-color: rgba(255,255,255,0.3);
-      color: #fff;
-    }
-
-    /* ==============================
-       МЕНЮ СПОСОБОВ
-    ============================== */
+    /* Режимы */
     #mode-list { display: flex; flex-direction: column; gap: 8px; }
 
     .mode-item {
-      padding: 14px;
-      border-radius: 8px;
+      padding: 14px; border-radius: 8px;
       border: 1px solid rgba(255,255,255,0.08);
       background: rgba(255,255,255,0.03);
       color: rgba(255,255,255,0.5);
@@ -199,9 +138,7 @@
       font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
       cursor: pointer;
       transition: background 0.2s, border-color 0.2s, color 0.2s;
-      text-align: left;
-      letter-spacing: 0.04em;
-      width: 100%;
+      text-align: left; letter-spacing: 0.04em; width: 100%;
     }
     .mode-item:active { background: rgba(255,255,255,0.12); }
     .mode-item.active {
@@ -209,52 +146,33 @@
       border-color: rgba(255,255,255,0.3);
       color: #fff;
     }
-    .mode-item-title {
-      font-size: 12px;
-      margin-bottom: 4px;
-      color: rgba(255,255,255,0.7);
-    }
-    .mode-item-desc {
-      font-size: 10px;
-      color: rgba(255,255,255,0.3);
-      line-height: 1.5;
-      letter-spacing: 0.03em;
-    }
+    .mode-item-title { font-size: 12px; margin-bottom: 4px; color: rgba(255,255,255,0.7); }
+    .mode-item-desc  { font-size: 10px; color: rgba(255,255,255,0.3); line-height: 1.5; letter-spacing: 0.03em; }
     .mode-item.active .mode-item-title { color: #fff; }
     .mode-item.active .mode-item-desc  { color: rgba(255,255,255,0.5); }
 
-    /* ==============================
-       КНОПКА ЗАКРЫТЬ (общая)
-    ============================== */
     .close-panel-btn {
-      margin-top: 14px;
-      width: 100%;
-      padding: 10px;
-      border-radius: 8px;
+      margin-top: 14px; width: 100%;
+      padding: 10px; border-radius: 8px;
       border: 1px solid rgba(255,255,255,0.08);
       background: transparent;
       color: rgba(255,255,255,0.25);
-      font-size: 11px;
-      letter-spacing: 0.1em;
+      font-size: 11px; letter-spacing: 0.1em;
       text-transform: uppercase;
       font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
       cursor: pointer;
     }
 
-    /* ==============================
-       DEBUG ОКНО
-    ============================== */
+    /* Debug — аудио визуализатор */
     #debug-window {
       position: fixed;
       top: max(16px, env(safe-area-inset-top));
       left: max(16px, env(safe-area-inset-left));
-      width: min(320px, 90vw);
-      height: min(400px, 60vh);
+      width: min(280px, 90vw);
       background: rgba(15,15,15,0.95);
       border: 1px solid rgba(255,255,255,0.15);
       border-radius: 12px;
-      z-index: 300;
-      display: none;
+      z-index: 300; display: none;
       flex-direction: column;
       backdrop-filter: blur(20px);
       overflow: hidden;
@@ -264,57 +182,59 @@
     #debug-header {
       padding: 12px;
       border-bottom: 1px solid rgba(255,255,255,0.1);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+      display: flex; justify-content: space-between; align-items: center;
     }
     #debug-header h4 {
       color: rgba(255,255,255,0.7);
-      font-size: 11px;
-      font-weight: 400;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      margin: 0;
+      font-size: 11px; font-weight: 400;
+      letter-spacing: 0.1em; text-transform: uppercase; margin: 0;
     }
     #debug-close {
-      background: transparent;
-      border: none;
+      background: transparent; border: none;
       color: rgba(255,255,255,0.4);
-      cursor: pointer;
-      font-size: 16px;
-      padding: 0;
-      width: 24px; height: 24px;
+      cursor: pointer; font-size: 16px;
+      padding: 0; width: 24px; height: 24px;
     }
 
-    #debug-video-container {
-      flex: 1;
-      position: relative;
-      overflow: hidden;
-      background: #000;
+    /* Полоска уровня громкости */
+    #debug-meter-wrap {
+      padding: 16px;
+      display: flex; flex-direction: column; gap: 10px;
     }
-    #debug-video {
-      width: 100%; height: 100%;
-      object-fit: cover;
-      transform: scaleX(-1);
+    .meter-row {
+      display: flex; align-items: center; gap: 10px;
     }
-    #debug-canvas {
-      position: absolute;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
+    .meter-label {
+      color: rgba(255,255,255,0.3);
+      font-size: 10px; letter-spacing: 0.08em;
+      font-family: 'Courier New', monospace;
+      width: 60px; flex-shrink: 0;
+    }
+    .meter-bar-bg {
+      flex: 1; height: 4px;
+      background: rgba(255,255,255,0.07);
+      border-radius: 2px; overflow: hidden;
+    }
+    .meter-bar {
+      height: 100%; width: 0%;
+      background: #ff2200;
+      border-radius: 2px;
+      transition: width 0.05s linear;
+    }
+    .meter-val {
+      color: rgba(255,255,255,0.3);
+      font-size: 10px;
+      font-family: 'Courier New', monospace;
+      width: 32px; text-align: right;
     }
 
     #debug-info {
-      padding: 12px;
-      border-top: 1px solid rgba(255,255,255,0.1);
+      padding: 0 16px 14px;
       font-size: 11px;
-      color: rgba(255,255,255,0.5);
+      color: rgba(255,255,255,0.35);
       font-family: 'Courier New', monospace;
-      line-height: 1.6;
-      max-height: 120px;
-      overflow-y: auto;
+      line-height: 1.7;
     }
-
-    #webcam-video { display: none; }
   </style>
 </head>
 <body>
@@ -323,57 +243,60 @@
   <div id="status">инициализация...</div>
   <div id="mode-indicator">способ 1</div>
 
-  <!-- Угловые кнопки-зоны -->
+  <!-- Угловые зоны -->
   <button id="debug-btn"></button>
-  <button id="settings-btn"></button>
   <button id="mode-btn"></button>
 
-  <!-- Затемнение фона -->
+  <!-- Overlay -->
   <div id="overlay"></div>
 
-  <!-- Панель настройки камеры -->
-  <div id="menu" class="panel">
-    <h3>камера</h3>
-    <div id="camera-list"></div>
-    <button class="close-panel-btn" id="close-camera-btn">закрыть</button>
-  </div>
-
-  <!-- Панель выбора способа -->
+  <!-- Панель режимов -->
   <div id="mode-menu" class="panel">
     <h3>способ</h3>
     <div id="mode-list">
       <button class="mode-item active" data-mode="1">
         <div class="mode-item-title">способ 1</div>
-        <div class="mode-item-desc">движение = хаос<br>стоишь = покой</div>
+        <div class="mode-item-desc">звук = хаос<br>тишина = покой</div>
       </button>
       <button class="mode-item" data-mode="2">
         <div class="mode-item-title">способ 2</div>
-        <div class="mode-item-desc">хаос всегда<br>появляешься = покой</div>
+        <div class="mode-item-desc">хаос всегда<br>звук = покой</div>
       </button>
     </div>
     <button class="close-panel-btn" id="close-mode-btn">закрыть</button>
   </div>
 
-  <!-- Debug окно -->
+  <!-- Debug — аудио -->
   <div id="debug-window">
     <div id="debug-header">
-      <h4>детекция скелета</h4>
+      <h4>аудио анализ</h4>
       <button id="debug-close">✕</button>
     </div>
-    <div id="debug-video-container">
-      <video id="debug-video"></video>
-      <canvas id="debug-canvas"></canvas>
+    <div id="debug-meter-wrap">
+      <div class="meter-row">
+        <div class="meter-label">raw rms</div>
+        <div class="meter-bar-bg"><div class="meter-bar" id="bar-raw"></div></div>
+        <div class="meter-val" id="val-raw">0</div>
+      </div>
+      <div class="meter-row">
+        <div class="meter-label">smooth</div>
+        <div class="meter-bar-bg"><div class="meter-bar" id="bar-smooth"></div></div>
+        <div class="meter-val" id="val-smooth">0</div>
+      </div>
+      <div class="meter-row">
+        <div class="meter-label">chaos</div>
+        <div class="meter-bar-bg"><div class="meter-bar" id="bar-chaos"></div></div>
+        <div class="meter-val" id="val-chaos">0</div>
+      </div>
     </div>
-    <div id="debug-info"><div>Ожидание...</div></div>
+    <div id="debug-info">
+      <div id="dbg-mode">Способ: —</div>
+      <div id="dbg-mic">Микрофон: ожидание</div>
+      <div id="dbg-threshold">Порог: —</div>
+    </div>
   </div>
 
-  <video id="webcam-video" playsinline></video>
-
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js" crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js" crossorigin="anonymous"></script>
 
   <script>
     // ========================================
@@ -385,89 +308,87 @@
       letterSpacing: 0.06,
 
       impulseStrength: 0.012,
-      friction: 0.988,
-      returnForce: 0.0004,
-      maxSpeed: 0.09,
+      friction:        0.988,
+      returnForce:     0.0004,
+      maxSpeed:        0.09,
 
-      rotImpulse: 0.012,
+      rotImpulse:  0.012,
       rotFriction: 0.985,
-      rotReturn: 0.0004,
+      rotReturn:   0.0004,
 
-      maxZ: 3.5,
+      maxZ:     3.5,
       zImpulse: 0.018,
 
-      motionRiseSmoothing: 0.15,
-      motionFallSmoothing: 0.025,
+      // Сглаживание аудио-сигнала
+      audioRiseSmoothing: 0.25,   // быстро реагирует на звук
+      audioFallSmoothing: 0.04,   // медленно затухает
 
-      motionThreshold: 0.004,
-      motionNoiseFloor: 0.015,
-      motionScale: 40,
+      // Порог шума микрофона (0–1)
+      // Всё ниже — тишина, игнорируем
+      audioNoiseFloor: 0.02,
 
-      audioEnabled: true,
-      litIntensity: 0.8,
+      // Усиление сигнала (RMS обычно 0.01–0.3)
+      audioGain: 3.5,
+
+      litIntensity:   0.8,
       litDisplacement: 0.15,
 
       boundsX: 5.5,
       boundsY: 3.2,
 
-      // Цвет букв — красный
       letterColor: '#ff2200',
     };
-
-    var KEY_JOINTS = [11, 12, 13, 14, 15, 16, 23, 24, 25, 26, 27, 28];
-
-    var SKELETON_CONNECTIONS = [
-      [11,12],[11,13],[13,15],[12,14],[14,16],
-      [11,23],[12,24],[23,24],
-      [23,25],[25,27],[24,26],[26,28],
-    ];
 
     // ========================================
     // DOM
     // ========================================
-    var statusEl        = document.getElementById('status');
-    var modeIndicator   = document.getElementById('mode-indicator');
-    var startBtn        = document.getElementById('start-btn');
-    var settingsBtn     = document.getElementById('settings-btn');
-    var debugBtn        = document.getElementById('debug-btn');
-    var modeBtn         = document.getElementById('mode-btn');
-    var overlay         = document.getElementById('overlay');
-    var menuEl          = document.getElementById('menu');
-    var modeMenuEl      = document.getElementById('mode-menu');
-    var cameraList      = document.getElementById('camera-list');
-    var closeCameraBtn  = document.getElementById('close-camera-btn');
-    var closeModeBtn    = document.getElementById('close-mode-btn');
-    var debugWindow     = document.getElementById('debug-window');
-    var debugVideo      = document.getElementById('debug-video');
-    var debugCanvas     = document.getElementById('debug-canvas');
-    var debugInfo       = document.getElementById('debug-info');
-    var debugClose      = document.getElementById('debug-close');
-    var webcamVideo     = document.getElementById('webcam-video');
-    var modeItems       = document.querySelectorAll('.mode-item');
+    var statusEl       = document.getElementById('status');
+    var modeIndicator  = document.getElementById('mode-indicator');
+    var startBtn       = document.getElementById('start-btn');
+    var debugBtn       = document.getElementById('debug-btn');
+    var modeBtn        = document.getElementById('mode-btn');
+    var overlay        = document.getElementById('overlay');
+    var modeMenuEl     = document.getElementById('mode-menu');
+    var closeModeBtn   = document.getElementById('close-mode-btn');
+    var debugWindow    = document.getElementById('debug-window');
+    var debugClose     = document.getElementById('debug-close');
+    var modeItems      = document.querySelectorAll('.mode-item');
+
+    var barRaw    = document.getElementById('bar-raw');
+    var barSmooth = document.getElementById('bar-smooth');
+    var barChaos  = document.getElementById('bar-chaos');
+    var valRaw    = document.getElementById('val-raw');
+    var valSmooth = document.getElementById('val-smooth');
+    var valChaos  = document.getElementById('val-chaos');
+    var dbgMode      = document.getElementById('dbg-mode');
+    var dbgMic       = document.getElementById('dbg-mic');
+    var dbgThreshold = document.getElementById('dbg-threshold');
 
     // ========================================
-    // ПЕРЕМЕННЫЕ
+    // СОСТОЯНИЕ
     // ========================================
     var letterMeshes        = [];
-    var smoothMotion        = 0;
-    var activeCameraId      = null;
-    var lastPoseLandmarks   = null;
-    var poseMotionIntensity = 0;
     var time                = 0;
     var appStarted          = false;
-
     var currentMode         = 1;
-    var personVisible       = false;
-    var smoothPresence      = 0;
-    var autonomousIntensity = 0;
 
-    // Audio
-    var audioContext   = null;
-    var masterGain     = null;
-    var noiseSource    = null;
-    var noiseGain      = null;
+    var rawAudioLevel       = 0;   // RMS прямо с анализатора
+    var smoothAudio         = 0;   // сглаженный сигнал
+    var autonomousIntensity = 0;   // для режима 2
+
+    // Web Audio
+    var audioContext  = null;
+    var analyser      = null;
+    var dataArray     = null;
+    var micStream     = null;
+
+    // Генеративный звук (выход)
+    var masterGain    = null;
+    var noiseSource   = null;
+    var noiseGain     = null;
     var crackleTimeout = null;
-        // ========================================
+
+    // ========================================
     // THREE.JS
     // ========================================
     var scene = new THREE.Scene();
@@ -488,28 +409,106 @@
     scene.add(litLight);
 
     // ========================================
-    // AUDIO — БЕЛЫЙ ШУМ
+    // МИКРОФОН — ИНИЦИАЛИЗАЦИЯ
     // ========================================
-    function initAudio() {
-      if (!audioContext) {
-        audioContext = new (window.AudioContext || window.webkitAudioContext)();
-      }
-      if (audioContext.state === 'suspended') {
-        audioContext.resume();
-      }
-      if (!noiseSource) {
-        createWhiteNoise();
+    async function initMicrophone() {
+      try {
+        statusEl.textContent   = 'запрашиваю микрофон...';
+        statusEl.style.opacity = '1';
+        statusEl.style.display = 'block';
+
+        var stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+        micStream  = stream;
+
+        // AudioContext создаём здесь — после жеста пользователя
+        if (!audioContext) {
+          audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (audioContext.state === 'suspended') {
+          await audioContext.resume();
+        }
+
+        // Источник — микрофон
+        var source = audioContext.createMediaStreamSource(stream);
+
+        // Анализатор
+        analyser = audioContext.createAnalyser();
+        analyser.fftSize = 256;                 // 128 бинов
+        analyser.smoothingTimeConstant = 0.5;   // встроенное сглаживание
+        source.connect(analyser);
+        // НЕ коннектим к destination — не слышим себя
+
+        dataArray = new Uint8Array(analyser.fftSize);
+
+        // Запускаем генеративный звук
+        initOutputAudio();
         scheduleCrackle();
+
+        statusEl.textContent = 'готово';
+        setTimeout(function() {
+          statusEl.style.opacity = '0';
+          setTimeout(function() { statusEl.style.display = 'none'; }, 1000);
+        }, 800);
+
+        if (dbgMic) dbgMic.textContent = 'Микрофон: активен';
+
+      } catch (err) {
+        statusEl.textContent = 'нет доступа к микрофону';
+        statusEl.style.color = 'rgba(255,100,100,0.8)';
+        console.error(err);
+        if (dbgMic) dbgMic.textContent = 'Микрофон: ' + err.name;
       }
     }
 
-    function createWhiteNoise() {
+    // ========================================
+    // МИКРОФОН — ЧИТАЕМ УРОВЕНЬ (RMS)
+    // Вызывается каждый кадр
+    // ========================================
+    function readAudioLevel() {
+      if (!analyser || !dataArray) return;
+
+      analyser.getByteTimeDomainData(dataArray);
+
+      // RMS по временному домену
+      var sum = 0;
+      for (var i = 0; i < dataArray.length; i++) {
+        var normalized = (dataArray[i] - 128) / 128; // -1..+1
+        sum += normalized * normalized;
+      }
+      var rms = Math.sqrt(sum / dataArray.length);
+
+      // Применяем усиление и clamp
+      rawAudioLevel = Math.min(1, rms * CONFIG.audioGain);
+
+      // Сглаживание: быстрый подъём, медленное падение
+      var smoothing = rawAudioLevel > smoothAudio
+        ? CONFIG.audioRiseSmoothing
+        : CONFIG.audioFallSmoothing;
+      smoothAudio += (rawAudioLevel - smoothAudio) * smoothing;
+
+      // Обновляем debug
+      if (debugWindow.classList.contains('visible')) {
+        var chaosNow = currentMode === 1 ? smoothAudio : autonomousIntensity;
+        barRaw.style.width    = (rawAudioLevel * 100).toFixed(1) + '%';
+        barSmooth.style.width = (smoothAudio   * 100).toFixed(1) + '%';
+        barChaos.style.width  = (chaosNow      * 100).toFixed(1) + '%';
+        valRaw.textContent    = (rawAudioLevel * 100).toFixed(0);
+        valSmooth.textContent = (smoothAudio   * 100).toFixed(0);
+        valChaos.textContent  = (chaosNow      * 100).toFixed(0);
+        dbgMode.textContent      = 'Способ: ' + currentMode;
+        dbgThreshold.textContent = 'Порог: ' + (CONFIG.audioNoiseFloor * 100).toFixed(0);
+      }
+    }
+
+    // ========================================
+    // ГЕНЕРАТИВНЫЙ ЗВУК — ВЫХОД
+    // ========================================
+    function initOutputAudio() {
       var bufferSize = audioContext.sampleRate * 2;
       var buffer     = audioContext.createBuffer(1, bufferSize, audioContext.sampleRate);
       var data       = buffer.getChannelData(0);
-
       for (var i = 0; i < bufferSize; i++) {
-        data[i] = (Math.random() * 2 - 1);
+        data[i] = Math.random() * 2 - 1;
       }
 
       noiseSource        = audioContext.createBufferSource();
@@ -541,9 +540,6 @@
       noiseSource.start();
     }
 
-    // ========================================
-    // AUDIO — ТРЕСК
-    // ========================================
     function scheduleCrackle() {
       var delay = 3000 + Math.random() * 4000;
       crackleTimeout = setTimeout(function() {
@@ -553,178 +549,44 @@
     }
 
     function playCrackle() {
-      if (!audioContext) return;
-
-      var crackleBuffer = audioContext.createBuffer(
-        1,
-        audioContext.sampleRate * 0.08,
-        audioContext.sampleRate
-      );
-      var crackleData = crackleBuffer.getChannelData(0);
-
-      for (var i = 0; i < crackleData.length; i++) {
-        var progress = i / crackleData.length;
-        var envelope = Math.pow(1 - progress, 3) * Math.min(1, progress * 20);
-        crackleData[i] = (Math.random() * 2 - 1) * envelope;
+      if (!audioContext || !masterGain) return;
+      var buf  = audioContext.createBuffer(1, audioContext.sampleRate * 0.08, audioContext.sampleRate);
+      var d    = buf.getChannelData(0);
+      for (var i = 0; i < d.length; i++) {
+        var p = i / d.length;
+        d[i]  = (Math.random() * 2 - 1) * Math.pow(1 - p, 3) * Math.min(1, p * 20);
       }
-
-      var crackleSource      = audioContext.createBufferSource();
-      crackleSource.buffer   = crackleBuffer;
-      var crackleGain        = audioContext.createGain();
-      crackleGain.gain.value = 0.3 + Math.random() * 0.5;
-
-      crackleSource.connect(crackleGain);
-      crackleGain.connect(masterGain);
-      crackleSource.start();
+      var src  = audioContext.createBufferSource();
+      src.buffer = buf;
+      var g    = audioContext.createGain();
+      g.gain.value = 0.3 + Math.random() * 0.5;
+      src.connect(g);
+      g.connect(masterGain);
+      src.start();
     }
 
     // ========================================
-    // AUDIO — УПРАВЛЕНИЕ ГРОМКОСТЬЮ
+    // ЗВУК — УПРАВЛЕНИЕ ГРОМКОСТЬЮ ШУМА
     // ========================================
     function updateSound() {
-      if (!CONFIG.audioEnabled || !audioContext || !noiseGain) return;
+      if (!audioContext || !noiseGain) return;
 
+      var target;
       if (currentMode === 1) {
-        var targetVol1 = smoothMotion > 0.05 ? smoothMotion * 0.6 : 0;
-        noiseGain.gain.setTargetAtTime(
-          targetVol1,
-          audioContext.currentTime,
-          smoothMotion > 0.05 ? 0.3 : 0.8
-        );
+        // Громче когда звук есть
+        target = smoothAudio > CONFIG.audioNoiseFloor ? smoothAudio * 0.6 : 0;
       } else {
-        var targetVol2 = (1 - smoothPresence) * 0.5;
-        noiseGain.gain.setTargetAtTime(
-          targetVol2,
-          audioContext.currentTime,
-          0.8
-        );
-      }
-    }
-        // ========================================
-    // MEDIAPIPE — ОБРАБОТКА РЕЗУЛЬТАТОВ
-    // ========================================
-    function onPoseResults(results) {
-      if (!results.poseLandmarks || results.poseLandmarks.length === 0) {
-        personVisible = false;
-        poseMotionIntensity *= 0.85;
-        debugInfo.innerHTML = '<div>Человек не найден</div>';
-        return;
+        // Громче в тишине, тише при звуке
+        target = (1 - smoothAudio) * 0.5;
       }
 
-      var currentLandmarks = results.poseLandmarks;
-
-      var visibleJoints = 0;
-      KEY_JOINTS.forEach(function(idx) {
-        if (currentLandmarks[idx].visibility > 0.3) {
-          visibleJoints++;
-        }
-      });
-
-      personVisible = visibleJoints >= 4;
-
-      if (debugWindow.classList.contains('visible')) {
-        drawSkeleton(currentLandmarks, results.image);
-      }
-
-      if (!lastPoseLandmarks) {
-        lastPoseLandmarks = currentLandmarks;
-        poseMotionIntensity = 0;
-        return;
-      }
-
-      var totalMotion = 0;
-      var count = 0;
-
-      for (var k = 0; k < KEY_JOINTS.length; k++) {
-        var idx  = KEY_JOINTS[k];
-        var curr = currentLandmarks[idx];
-        var prev = lastPoseLandmarks[idx];
-
-        if (curr.visibility > 0.3 && prev.visibility > 0.3) {
-          var dx   = curr.x - prev.x;
-          var dy   = curr.y - prev.y;
-          var dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist > CONFIG.motionThreshold) {
-            totalMotion += dist;
-            count++;
-          }
-        }
-      }
-
-      lastPoseLandmarks = currentLandmarks;
-
-      if (count === 0) {
-        poseMotionIntensity *= 0.85;
-        debugInfo.innerHTML =
-          '<div>Способ: ' + currentMode + '</div>' +
-          '<div>Человек: ' + (personVisible ? 'да' : 'нет') + '</div>' +
-          '<div>Присутствие: ' + (smoothPresence * 100).toFixed(0) + '%</div>' +
-          '<div>Нет движения</div>';
-        return;
-      }
-
-      var avgMotion = totalMotion / count;
-
-      if (avgMotion < CONFIG.motionNoiseFloor) {
-        poseMotionIntensity *= 0.85;
-        debugInfo.innerHTML =
-          '<div>Способ: ' + currentMode + '</div>' +
-          '<div>Человек: ' + (personVisible ? 'да' : 'нет') + '</div>' +
-          '<div>Присутствие: ' + (smoothPresence * 100).toFixed(0) + '%</div>' +
-          '<div>Движение: ' + (avgMotion * 1000).toFixed(2) + ' (шум)</div>';
-        return;
-      }
-
-      var cleanMotion = avgMotion - CONFIG.motionNoiseFloor;
-      poseMotionIntensity = Math.min(1, cleanMotion * CONFIG.motionScale);
-
-      debugInfo.innerHTML =
-        '<div>Способ: ' + currentMode + '</div>' +
-        '<div>Человек: ' + (personVisible ? 'да' : 'нет') + '</div>' +
-        '<div>Присутствие: ' + (smoothPresence * 100).toFixed(0) + '%</div>' +
-        '<div>Движение: ' + (avgMotion * 1000).toFixed(2) + '</div>' +
-        '<div>Интенсивность: ' + (poseMotionIntensity * 100).toFixed(1) + '%</div>' +
-        '<div>Суставов: ' + visibleJoints + '</div>';
+      noiseGain.gain.setTargetAtTime(target, audioContext.currentTime,
+        smoothAudio > CONFIG.audioNoiseFloor ? 0.3 : 0.8
+      );
     }
 
     // ========================================
-    // MEDIAPIPE — СКЕЛЕТ В DEBUG ОКНЕ
-    // ========================================
-    function drawSkeleton(landmarks, image) {
-      var ctx = debugCanvas.getContext('2d');
-      var w   = debugCanvas.width;
-      var h   = debugCanvas.height;
-
-      ctx.clearRect(0, 0, w, h);
-      ctx.drawImage(image, 0, 0, w, h);
-
-      ctx.strokeStyle = 'rgba(0, 255, 100, 0.6)';
-      ctx.lineWidth   = 2;
-
-      SKELETON_CONNECTIONS.forEach(function(pair) {
-        var a = landmarks[pair[0]];
-        var b = landmarks[pair[1]];
-        if (a.visibility > 0.3 && b.visibility > 0.3) {
-          ctx.beginPath();
-          ctx.moveTo(a.x * w, a.y * h);
-          ctx.lineTo(b.x * w, b.y * h);
-          ctx.stroke();
-        }
-      });
-
-      ctx.fillStyle = 'rgba(0, 255, 100, 0.9)';
-      KEY_JOINTS.forEach(function(idx) {
-        var lm = landmarks[idx];
-        if (lm.visibility > 0.3) {
-          ctx.beginPath();
-          ctx.arc(lm.x * w, lm.y * h, 5, 0, Math.PI * 2);
-          ctx.fill();
-        }
-      });
-    }
-
-    // ========================================
-    // БУКВЫ — ТЕКСТУРА (красный цвет)
+    // БУКВЫ — ТЕКСТУРА
     // ========================================
     function createLetterTexture(char) {
       var size = 256;
@@ -740,9 +602,8 @@
       return new THREE.CanvasTexture(c);
     }
 
-        // ========================================
+    // ========================================
     // БУКВЫ — СОЗДАНИЕ
-    // Автоматически подбирает размер под экран
     // ========================================
     function initLetters() {
       letterMeshes.forEach(function(m) {
@@ -753,72 +614,39 @@
       });
       letterMeshes = [];
 
-      var chars = CONFIG.text.split('');
-
-      // Считаем сколько "слотов" занимает текст
-      // Пробел считаем как полный символ
-      var charCount = chars.length;
-
-      // Вычисляем видимую ширину сцены на Z=0
-      // Формула: ширина = 2 * tan(fov/2) * distanceToCamera * aspectRatio
-      var fovRad      = (45 * Math.PI) / 180;
-      var visibleH    = 2 * Math.tan(fovRad / 2) * camera.position.z;
-      var visibleW    = visibleH * (window.innerWidth / window.innerHeight);
-
-      // Оставляем 90% ширины под текст (по 5% отступ с каждой стороны)
-      var usableWidth = visibleW * 0.90;
-
-      // Размер одной буквы чтобы все влезли в одну строку
-      // letterSize + letterSpacing между каждой буквой
-      // Уравнение: charCount * size + (charCount - 1) * spacing = usableWidth
-      // Берём spacing = size * 0.115 (как раньше было соотношение 0.06/0.52)
+      var chars        = CONFIG.text.split('');
+      var charCount    = chars.length;
+      var fovRad       = (45 * Math.PI) / 180;
+      var visibleH     = 2 * Math.tan(fovRad / 2) * camera.position.z;
+      var visibleW     = visibleH * (window.innerWidth / window.innerHeight);
+      var usableWidth  = visibleW * 0.90;
       var spacingRatio = 0.115;
       var autoSize     = usableWidth / (charCount + (charCount - 1) * spacingRatio);
 
-      // На мобильном в портретной ориентации —
-      // текст будет мелкий в одну строку, разбиваем на две
       var isMobilePortrait = window.innerWidth < 600 && window.innerHeight > window.innerWidth;
 
       if (isMobilePortrait) {
-        // Разбиваем "Я ЗДЕСЬ БЫЛ" на две строки: "Я ЗДЕСЬ" и "БЫЛ"
-        // Ищем где примерно середина текста (по пробелу)
-        var words     = CONFIG.text.split(' ');
-        var line1     = words.slice(0, 2).join(' '); // "Я ЗДЕСЬ"
-        var line2     = words.slice(2).join(' ');    // "БЫЛ"
-        var maxLen    = Math.max(line1.length, line2.length);
-        autoSize      = usableWidth / (maxLen + (maxLen - 1) * spacingRatio);
+        var words  = CONFIG.text.split(' ');
+        var line1  = words.slice(0, 2).join(' ');
+        var line2  = words.slice(2).join(' ');
+        var maxLen = Math.max(line1.length, line2.length);
+        autoSize   = usableWidth / (maxLen + (maxLen - 1) * spacingRatio);
+        autoSize   = Math.max(0.15, Math.min(autoSize, 1.2));
 
-        // Ограничиваем минимальный и максимальный размер
-        autoSize = Math.max(0.15, Math.min(autoSize, 1.2));
-
-        var letterSpacing = autoSize * spacingRatio;
-        var step          = autoSize + letterSpacing;
-        var lineHeight    = autoSize * 1.4;
-
-        // Рисуем строку 1 — выше центра
-        renderLine(line1.split(''), step, autoSize, lineHeight * 0.5);
-        // Рисуем строку 2 — ниже центра
+        var step       = autoSize + autoSize * spacingRatio;
+        var lineHeight = autoSize * 1.4;
+        renderLine(line1.split(''), step, autoSize,  lineHeight * 0.5);
         renderLine(line2.split(''), step, autoSize, -lineHeight * 0.5);
-
       } else {
-        // Одна строка — десктоп или горизонтальный телефон
         autoSize = Math.max(0.15, Math.min(autoSize, 1.2));
-
-        var letterSpacing = autoSize * spacingRatio;
-        var step          = autoSize + letterSpacing;
-
+        var step = autoSize + autoSize * spacingRatio;
         renderLine(chars, step, autoSize, 0);
       }
 
-      // Сохраняем текущий размер в конфиг (нужен для физики)
       CONFIG.letterSize    = autoSize;
       CONFIG.letterSpacing = autoSize * spacingRatio;
     }
 
-    // ========================================
-    // БУКВЫ — РЕНДЕР ОДНОЙ СТРОКИ
-    // Вспомогательная функция для initLetters
-    // ========================================
     function renderLine(chars, step, size, offsetY) {
       var totalWidth = chars.length * step - (size * 0.115);
       var startX     = -totalWidth / 2 + step / 2;
@@ -841,16 +669,11 @@
         mesh.position.set(homeX, homeY, 0);
 
         mesh.userData = {
-          homeX:         homeX,
-          homeY:         homeY,
-          homeZ:         0,
-          vx:            0,
-          vy:            0,
-          vz:            0,
-          vRotZ:         0,
-          vRotX:         0,
-          mass:          0.8 + Math.random() * 0.4,
-          litPhase:      Math.random() * Math.PI * 2,
+          homeX: homeX, homeY: homeY, homeZ: 0,
+          vx: 0, vy: 0, vz: 0,
+          vRotZ: 0, vRotX: 0,
+          mass:       0.8 + Math.random() * 0.4,
+          litPhase:   Math.random() * Math.PI * 2,
           glitchTimer:   0,
           glitchOffsetX: 0,
           glitchOffsetY: 0,
@@ -862,25 +685,26 @@
     }
 
     // ========================================
-    // БУКВЫ — ФИЗИКА + ГЛИТЧ + ОТСКОК
+    // БУКВЫ — ФИЗИКА
     // ========================================
-    function updateLetters(motionIntensity) {
+    function updateLetters() {
       time += 0.016;
 
-      var presenceTarget = personVisible ? 1 : 0;
-      var presenceSpeed  = personVisible ? 0.05 : 0.008;
-      smoothPresence += (presenceTarget - smoothPresence) * presenceSpeed;
+      // Определяем интенсивность хаоса по режиму
+      var chaosIntensity;
 
-      if (currentMode === 2) {
-        var targetAutonomous = 1 - smoothPresence;
-        autonomousIntensity += (targetAutonomous - autonomousIntensity) * 0.03;
+      if (currentMode === 1) {
+        // Режим 1: звук → хаос
+        var aboveFloor = Math.max(0, smoothAudio - CONFIG.audioNoiseFloor);
+        chaosIntensity = Math.min(1, aboveFloor / (1 - CONFIG.audioNoiseFloor));
+
       } else {
-        autonomousIntensity += (0 - autonomousIntensity) * 0.05;
+        // Режим 2: тишина → хаос, звук        // → покой
+        var soundPresence  = Math.min(1, smoothAudio * 4);
+        var targetAuto     = 1 - soundPresence;
+        autonomousIntensity += (targetAuto - autonomousIntensity) * 0.03;
+        chaosIntensity = autonomousIntensity;
       }
-
-      var chaosIntensity = currentMode === 1
-        ? motionIntensity
-        : autonomousIntensity;
 
       letterMeshes.forEach(function(mesh) {
         if (!mesh) return;
@@ -898,7 +722,7 @@
 
         // === ПРИТЯЖЕНИЕ К ДОМУ ===
         var returnMult = (currentMode === 2)
-          ? (1 + smoothPresence * 10)
+          ? (1 + (1 - autonomousIntensity) * 10)
           : 1;
 
         ud.vx    += (ud.homeX - mesh.position.x) * CONFIG.returnForce * returnMult;
@@ -909,7 +733,7 @@
 
         // === ТРЕНИЕ ===
         var frictionMult = (currentMode === 2)
-          ? Math.max(0.92, CONFIG.friction - smoothPresence * 0.04)
+          ? Math.max(0.92, CONFIG.friction - (1 - autonomousIntensity) * 0.04)
           : CONFIG.friction;
 
         ud.vx    *= frictionMult;
@@ -932,18 +756,14 @@
 
         // === ОТСКОК ОТ ГРАНИЦ ===
         if (mesh.position.x > CONFIG.boundsX) {
-          mesh.position.x = CONFIG.boundsX;
-          ud.vx *= -0.6;
+          mesh.position.x = CONFIG.boundsX; ud.vx *= -0.6;
         } else if (mesh.position.x < -CONFIG.boundsX) {
-          mesh.position.x = -CONFIG.boundsX;
-          ud.vx *= -0.6;
+          mesh.position.x = -CONFIG.boundsX; ud.vx *= -0.6;
         }
         if (mesh.position.y > CONFIG.boundsY) {
-          mesh.position.y = CONFIG.boundsY;
-          ud.vy *= -0.6;
+          mesh.position.y = CONFIG.boundsY; ud.vy *= -0.6;
         } else if (mesh.position.y < -CONFIG.boundsY) {
-          mesh.position.y = -CONFIG.boundsY;
-          ud.vy *= -0.6;
+          mesh.position.y = -CONFIG.boundsY; ud.vy *= -0.6;
         }
         if (Math.abs(mesh.position.z) > CONFIG.maxZ) {
           mesh.position.z = Math.sign(mesh.position.z) * CONFIG.maxZ;
@@ -970,7 +790,7 @@
         if (ud.glitchTimer > 0) {
           mesh.position.x += ud.glitchOffsetX;
           mesh.position.y += ud.glitchOffsetY;
-          var glitchScale = 1 + (Math.random() - 0.5) * 0.15 * chaosIntensity;
+          var glitchScale   = 1 + (Math.random() - 0.5) * 0.15 * chaosIntensity;
           mesh.scale.set(glitchScale, 1 + (Math.random() - 0.5) * 0.1, 1);
           mesh.material.opacity = 0.4 + Math.random() * 0.6;
         } else {
@@ -982,177 +802,59 @@
         litLight.intensity = chaosIntensity * CONFIG.litIntensity;
       });
     }
-        // ========================================
+
+    // ========================================
     // ГЛАВНЫЙ ЦИКЛ
     // ========================================
     function animate() {
       requestAnimationFrame(animate);
-
-      var smoothing = poseMotionIntensity > smoothMotion
-        ? CONFIG.motionRiseSmoothing
-        : CONFIG.motionFallSmoothing;
-      smoothMotion += (poseMotionIntensity - smoothMotion) * smoothing;
-
       if (appStarted) {
+        readAudioLevel();
         updateSound();
       }
-
-      updateLetters(smoothMotion);
+      updateLetters();
       renderer.render(scene, camera);
     }
 
     // ========================================
-    // ЗАПУСК КАМЕРЫ
-    // ========================================
-    async function startCamera(deviceId) {
-      try {
-        statusEl.textContent   = 'запрашиваю камеру...';
-        statusEl.style.opacity = '1';
-        statusEl.style.display = 'block';
-
-        var constraints = {
-          video: deviceId
-            ? { deviceId: { exact: deviceId }, width: 640, height: 480 }
-            : { width: 640, height: 480, facingMode: 'user' }
-        };
-
-        var stream = await navigator.mediaDevices.getUserMedia(constraints);
-        activeCameraId = deviceId || null;
-
-        webcamVideo.srcObject = stream;
-        debugVideo.srcObject  = stream;
-
-        statusEl.textContent = 'готово';
-        setTimeout(function() {
-          statusEl.style.opacity = '0';
-          setTimeout(function() { statusEl.style.display = 'none'; }, 1000);
-        }, 800);
-
-      } catch (err) {
-        statusEl.textContent = 'ошибка: ' + err.name;
-        statusEl.style.color = 'rgba(255,100,100,0.8)';
-        console.error(err);
-      }
-    }
-
-    // ========================================
-    // СПИСОК КАМЕР
-    // ========================================
-    async function loadCameraList() {
-      cameraList.innerHTML = '';
-      try {
-        await navigator.mediaDevices.getUserMedia({ video: true });
-        var devices = await navigator.mediaDevices.enumerateDevices();
-        var cameras = devices.filter(function(d) { return d.kind === 'videoinput'; });
-
-        if (cameras.length === 0) {
-          cameraList.innerHTML = '<div class="camera-item">камеры не найдены</div>';
-          return;
-        }
-
-        cameras.forEach(function(cam, i) {
-          var btn         = document.createElement('button');
-          btn.className   = 'camera-item';
-          btn.textContent = cam.label || ('Камера ' + (i + 1));
-
-          if (activeCameraId === cam.deviceId || (!activeCameraId && i === 0)) {
-            btn.classList.add('active');
-          }
-
-          btn.addEventListener('click', function() {
-            cameraList.querySelectorAll('.camera-item').forEach(function(el) {
-              el.classList.remove('active');
-            });
-            btn.classList.add('active');
-            startCamera(cam.deviceId);
-            closeAllPanels();
-          });
-
-          cameraList.appendChild(btn);
-        });
-
-      } catch (err) {
-        cameraList.innerHTML = '<div class="camera-item">нет доступа к камере</div>';
-        console.error(err);
-      }
-    }
-
-    // ========================================
-    // ПАНЕЛИ — ОТКРЫТЬ / ЗАКРЫТЬ
+    // ПАНЕЛИ
     // ========================================
     function closeAllPanels() {
       overlay.classList.remove('visible');
-      menuEl.classList.remove('visible');
       modeMenuEl.classList.remove('visible');
-    }
-
-    function openCameraMenu() {
-      closeAllPanels();
-      overlay.classList.add('visible');
-      menuEl.classList.add('visible');
-      loadCameraList();
     }
 
     function openModeMenu() {
       closeAllPanels();
       overlay.classList.add('visible');
       modeMenuEl.classList.add('visible');
-
-      // Обновляем активный пункт в панели
       modeItems.forEach(function(item) {
-        var itemMode = parseInt(item.getAttribute('data-mode'));
-        if (itemMode === currentMode) {
-          item.classList.add('active');
-        } else {
-          item.classList.remove('active');
-        }
+        item.classList.toggle('active',
+          parseInt(item.getAttribute('data-mode')) === currentMode
+        );
       });
     }
 
     function toggleDebugWindow() {
       debugWindow.classList.toggle('visible');
-      if (debugWindow.classList.contains('visible')) {
-        setTimeout(function() {
-          debugCanvas.width  = debugVideo.offsetWidth;
-          debugCanvas.height = debugVideo.offsetHeight;
-        }, 100);
-      }
     }
 
     // ========================================
-    // ПЕРЕКЛЮЧЕНИЕ СПОСОБОВ
+    // ПЕРЕКЛЮЧЕНИЕ РЕЖИМОВ
     // ========================================
     function setMode(mode) {
       currentMode = mode;
+      modeIndicator.textContent = 'способ ' + mode;
 
-      if (mode === 1) {
-        modeIndicator.textContent = 'способ 1';
-        autonomousIntensity = 0;
-        if (appStarted && noiseGain && audioContext) {
-          noiseGain.gain.setTargetAtTime(0, audioContext.currentTime, 0.5);
-        }
-      }
+      if (mode === 1) autonomousIntensity = 0;
+      if (mode === 2) autonomousIntensity = 1;
 
-      if (mode === 2) {
-        modeIndicator.textContent = 'способ 2';
-        autonomousIntensity = 1;
-        if (appStarted && noiseGain && audioContext) {
-          var vol = (1 - smoothPresence) * 0.5;
-          noiseGain.gain.setTargetAtTime(vol, audioContext.currentTime, 0.3);
-        }
-      }
-
-      // Обновляем активный пункт в панели способов
       modeItems.forEach(function(item) {
-        var itemMode = parseInt(item.getAttribute('data-mode'));
-        if (itemMode === currentMode) {
-          item.classList.add('active');
-        } else {
-          item.classList.remove('active');
-        }
+        item.classList.toggle('active',
+          parseInt(item.getAttribute('data-mode')) === currentMode
+        );
       });
 
-      // Мигаем индикатором
       modeIndicator.style.opacity = '1';
       setTimeout(function() {
         modeIndicator.style.opacity = '0.2';
@@ -1160,14 +862,26 @@
     }
 
     // ========================================
-    // СОБЫТИЯ КЛАВИАТУРЫ
-    // Используем keyup вместо keydown —
-    // решает проблему с Chrome где keydown
-    // может перехватываться браузером
+    // СОБЫТИЯ
     // ========================================
+    debugBtn.addEventListener('click', toggleDebugWindow);
+    modeBtn.addEventListener('click', openModeMenu);
+    closeModeBtn.addEventListener('click', closeAllPanels);
+    overlay.addEventListener('click', closeAllPanels);
+    debugClose.addEventListener('click', function() {
+      debugWindow.classList.remove('visible');
+    });
+
+    modeItems.forEach(function(item) {
+      item.addEventListener('click', function() {
+        setMode(parseInt(item.getAttribute('data-mode')));
+        closeAllPanels();
+      });
+    });
+
     document.addEventListener('keyup', function(e) {
-      if (e.key === '1') { setMode(1); }
-      if (e.key === '2') { setMode(2); }
+      if (e.key === '1') setMode(1);
+      if (e.key === '2') setMode(2);
       if (e.key === 'Escape') {
         closeAllPanels();
         debugWindow.classList.remove('visible');
@@ -1175,54 +889,13 @@
     });
 
     // ========================================
-    // СОБЫТИЯ КНОПОК
-    // ========================================
-
-    // Нижний левый — дебаг
-    debugBtn.addEventListener('click', toggleDebugWindow);
-
-    // Нижний правый — настройки камеры
-    settingsBtn.addEventListener('click', openCameraMenu);
-
-    // Верхний правый — выбор способа
-    modeBtn.addEventListener('click', openModeMenu);
-
-    // Пункты в панели способов
-    modeItems.forEach(function(item) {
-      item.addEventListener('click', function() {
-        var mode = parseInt(item.getAttribute('data-mode'));
-        setMode(mode);
-        closeAllPanels();
-      });
-    });
-
-    // Кнопки закрытия панелей
-    closeCameraBtn.addEventListener('click', closeAllPanels);
-    closeModeBtn.addEventListener('click', closeAllPanels);
-
-    // Клик по затемнению
-    overlay.addEventListener('click', closeAllPanels);
-
-    // Закрытие debug окна
-    debugClose.addEventListener('click', function() {
-      debugWindow.classList.remove('visible');
-    });
-
-    // ========================================
     // RESIZE
-    // ========================================
-        // ========================================
-    // RESIZE — пересчитываем буквы под новый размер
     // ========================================
     window.addEventListener('resize', function() {
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
       renderer.setSize(window.innerWidth, window.innerHeight);
-      var aspect     = window.innerWidth / window.innerHeight;
-      CONFIG.boundsX = 5.5 * aspect / (16 / 9);
-      CONFIG.boundsY = 3.2;
-
-      // Пересоздаём буквы с новым размером
+      CONFIG.boundsX = 5.5 * (window.innerWidth / window.innerHeight) / (16 / 9);
       initLetters();
     });
 
@@ -1231,11 +904,7 @@
         camera.aspect = window.innerWidth / window.innerHeight;
         camera.updateProjectionMatrix();
         renderer.setSize(window.innerWidth, window.innerHeight);
-        var aspect     = window.innerWidth / window.innerHeight;
-        CONFIG.boundsX = 5.5 * aspect / (16 / 9);
-        CONFIG.boundsY = 3.2;
-
-        // Пересоздаём буквы под новую ориентацию
+        CONFIG.boundsX = 5.5 * (window.innerWidth / window.innerHeight) / (16 / 9);
         initLetters();
       }, 100);
     });
@@ -1247,89 +916,35 @@
       startBtn.style.opacity       = '0';
       startBtn.style.pointerEvents = 'none';
       setTimeout(function() { startBtn.style.display = 'none'; }, 400);
-
-      initAudio();
       appStarted = true;
-
-      if (currentMode === 2 && noiseGain && audioContext) {
-        var vol = (1 - smoothPresence) * 0.5;
-        noiseGain.gain.setTargetAtTime(vol, audioContext.currentTime, 0.5);
-      }
+      initMicrophone();
     });
-
-    // ========================================
-    // ВСПОМОГАТЕЛЬНАЯ ФУНКЦИЯ — ЗАПУСК POSE
-    // ========================================
-    function startPose() {
-      var pose = new Pose({
-        locateFile: function(file) {
-          return 'https://cdn.jsdelivr.net/npm/@mediapipe/pose/' + file;
-        }
-      });
-
-      pose.setOptions({
-        modelComplexity:        1,
-        smoothLandmarks:        true,
-        enableSegmentation:     false,
-        smoothSegmentation:     false,
-        minDetectionConfidence: 0.5,
-        minTrackingConfidence:  0.5
-      });
-
-      pose.onResults(onPoseResults);
-      startCamera();
-
-      var cameraHelper = new Camera(webcamVideo, {
-        onFrame: async function() {
-          await pose.send({ image: webcamVideo });
-        },
-        width:  640,
-        height: 480
-      });
-
-      cameraHelper.start();
-    }
 
     // ========================================
     // ИНИЦИАЛИЗАЦИЯ
     // ========================================
     window.addEventListener('load', function() {
-
-      var aspect     = window.innerWidth / window.innerHeight;
-      CONFIG.boundsX = 5.5 * aspect / (16 / 9);
+      CONFIG.boundsX = 5.5 * (window.innerWidth / window.innerHeight) / (16 / 9);
       CONFIG.boundsY = 3.2;
 
-      // Блокируем кнопку пока шрифт не загрузился
       startBtn.disabled      = true;
       startBtn.textContent   = 'загрузка...';
       startBtn.style.opacity = '0.4';
-      startBtn.style.cursor  = 'default';
 
-      // Ждём именно Rubik Mono One — надёжнее чем fonts.ready
       document.fonts.load('400 64px Rubik Mono One').then(function() {
-
         startBtn.disabled      = false;
         startBtn.textContent   = 'начать';
         startBtn.style.opacity = '1';
         startBtn.style.cursor  = 'pointer';
-
         initLetters();
         animate();
-        startPose();
-
-      }).catch(function(err) {
-
-        // Нет интернета — запускаем с запасным шрифтом
-        console.warn('Шрифт не загрузился:', err);
-
+      }).catch(function() {
         startBtn.disabled      = false;
         startBtn.textContent   = 'начать';
         startBtn.style.opacity = '1';
         startBtn.style.cursor  = 'pointer';
-
         initLetters();
         animate();
-        startPose();
       });
     });
 
