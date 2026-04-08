@@ -277,6 +277,23 @@
       font-family: 'Courier New', monospace;
       line-height: 1.7;
     }
+
+    #auto-phase-indicator {
+      position: fixed;
+      bottom: max(20px, env(safe-area-inset-bottom));
+      left: 50%;
+      transform: translateX(-50%);
+      color: rgba(255,255,255,0.15);
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      z-index: 100;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.5s;
+    }
+    #auto-phase-indicator.visible { opacity: 1; }
   </style>
 </head>
 <body>
@@ -284,6 +301,7 @@
   <button id="start-btn" disabled>загрузка...</button>
   <div id="status">инициализация...</div>
   <div id="mode-indicator">способ 1</div>
+  <div id="auto-phase-indicator"></div>
 
   <button id="debug-btn"></button>
   <button id="mode-btn"></button>
@@ -300,6 +318,10 @@
       <button class="mode-item" data-mode="2">
         <div class="mode-item-title">способ 2</div>
         <div class="mode-item-desc">хаос всегда<br>звук = покой</div>
+      </button>
+      <button class="mode-item" data-mode="3">
+        <div class="mode-item-title">способ 3</div>
+        <div class="mode-item-desc">автономный<br>пауза → разлёт → полёт → сбор</div>
       </button>
     </div>
     <button class="close-panel-btn" id="close-mode-btn">закрыть</button>
@@ -329,7 +351,7 @@
     </div>
     <div id="sliders-wrap">
       <div class="slider-row">
-             <div class="slider-top">
+        <div class="slider-top">
           <span class="slider-name">порог тишины</span>
           <span class="slider-value" id="val-floor">6</span>
         </div>
@@ -382,43 +404,56 @@
     // КОНФИГ
     // ========================================
     var CONFIG = {
-  text: 'Я ЗДЕСЬ БЫЛ',
+      text: 'Я ЗДЕСЬ БЫЛ',
 
-  impulseStrength: 0.030,   // амплитуда 30
-  friction:        0.936,   // инерция 936
-  returnForce:     0.001,   // пружинистость 1
-  maxSpeed:        0.40,
+      impulseStrength: 0.030,
+      friction:        0.936,
+      returnForce:     0.001,
+      maxSpeed:        0.40,
 
-  rotImpulse:  0.015,
-  rotFriction: 0.929,
-  rotReturn:   0.001,
+      rotImpulse:  0.015,
+      rotFriction: 0.929,
+      rotReturn:   0.001,
 
-  maxZ:     3.5,
-  zImpulse: 0.038,
+      maxZ:     3.5,
+      zImpulse: 0.038,
 
-  wallBounceDamping: 0.6,
-  letterCollision:   true,
-  collisionDamping:  0.5,
+      wallBounceDamping: 0.6,
+      letterCollision:   true,
+      collisionDamping:  0.5,
 
-  audioRiseSmoothing: 0.95,
-  audioFallSmoothing: 0.18,
-  audioNoiseFloor:    0.06,   // порог тишины 6
-  audioGain:          10.0,   // чувствительность 10
+      audioRiseSmoothing: 0.95,
+      audioFallSmoothing: 0.18,
+      audioNoiseFloor:    0.06,
+      audioGain:          10.0,
 
-  litIntensity:    0.8,
-  litDisplacement: 0.15,
+      litIntensity:    0.8,
+      litDisplacement: 0.15,
 
-  boundsX: 5.5,
-  boundsY: 3.2,
+      boundsX: 5.5,
+      boundsY: 3.2,
 
-  letterColor: '#ff2200',
-};
+      letterColor: '#ff2200',
+
+      // способ 3 — тайминги
+      autoPause:   30,
+      autoFly:     20,
+      autoFadeIn:   3,
+      autoFadeOut:  3,
+
+      // способ 3 — плавная физика полёта
+      autoImpulseStrength: 0.012,
+      autoImpulseChance:   0.15,
+      autoFriction:        0.984,
+      autoRotImpulse:      0.004,
+    };
 
     // ========================================
     // DOM
     // ========================================
     var statusEl      = document.getElementById('status');
     var modeIndicator = document.getElementById('mode-indicator');
+    var autoPhaseEl   = document.getElementById('auto-phase-indicator');
     var startBtn      = document.getElementById('start-btn');
     var debugBtn      = document.getElementById('debug-btn');
     var modeBtn       = document.getElementById('mode-btn');
@@ -517,8 +552,20 @@
     var analyser     = null;
     var dataArray    = null;
 
+    // Способ 3
+    var autoTimer = 0;
+    var autoPhase = 'pause';
+    var autoChaos = 0;
+
+    var phaseLabels = {
+      pause:   'покой',
+      fadein:  'разлёт...',
+      fly:     'полёт',
+      fadeout: 'сбор...',
+    };
+
     // ========================================
-    // ГРАНИЦЫ — пересчёт из пикселей в мировые координаты
+    // ГРАНИЦЫ
     // ========================================
     function calcBounds() {
       var fovRad   = (45 * Math.PI) / 180;
@@ -590,7 +637,9 @@
       smoothAudio += (rawAudioLevel - smoothAudio) * smoothing;
 
       if (debugWindow.classList.contains('visible')) {
-        var chaosNow = currentMode === 1 ? smoothAudio : autonomousIntensity;
+        var chaosNow = currentMode === 1 ? smoothAudio
+                     : currentMode === 2 ? autonomousIntensity
+                     : autoChaos;
         barRaw.style.width    = (rawAudioLevel * 100).toFixed(1) + '%';
         barSmooth.style.width = (smoothAudio   * 100).toFixed(1) + '%';
         barChaos.style.width  = (chaosNow      * 100).toFixed(1) + '%';
@@ -598,6 +647,53 @@
         valSmooth.textContent = (smoothAudio   * 100).toFixed(0);
         valChaos.textContent  = (chaosNow      * 100).toFixed(0);
         dbgMode.textContent   = 'способ: ' + currentMode;
+      }
+    }
+
+    // ========================================
+    // АВТОНОМНЫЙ ТИКЕР (способ 3)
+    // ========================================
+    function tickAutoMode() {
+      var dt = 0.016;
+      autoTimer += dt;
+
+      if (autoPhase === 'pause') {
+        autoChaos = 0;
+        if (autoTimer >= CONFIG.autoPause) {
+          autoTimer = 0;
+          autoPhase = 'fadein';
+          updateAutoPhaseUI();
+        }
+
+      } else if (autoPhase === 'fadein') {
+        autoChaos = Math.min(1, autoTimer / CONFIG.autoFadeIn);
+        if (autoTimer >= CONFIG.autoFadeIn) {
+          autoTimer = 0;
+          autoPhase = 'fly';
+          updateAutoPhaseUI();
+        }
+
+      } else if (autoPhase === 'fly') {
+        autoChaos = 1;
+        if (autoTimer >= CONFIG.autoFly) {
+          autoTimer = 0;
+          autoPhase = 'fadeout';
+          updateAutoPhaseUI();
+        }
+
+      } else if (autoPhase === 'fadeout') {
+        autoChaos = Math.max(0, 1 - autoTimer / CONFIG.autoFadeOut);
+        if (autoTimer >= CONFIG.autoFadeOut) {
+          autoTimer = 0;
+          autoPhase = 'pause';
+          updateAutoPhaseUI();
+        }
+      }
+    }
+
+    function updateAutoPhaseUI() {
+      if (currentMode === 3) {
+        autoPhaseEl.textContent = phaseLabels[autoPhase];
       }
     }
 
@@ -612,7 +708,7 @@
       cx.clearRect(0, 0, size, size);
       cx.fillStyle    = CONFIG.letterColor;
       cx.font         = '400 ' + Math.floor(size * 0.72) + 'px Rubik Mono One, monospace';
-      cx.textAlign    = 'center';
+      cx.textAlign    =      'center';
       cx.textBaseline = 'middle';
       cx.fillText(char, size / 2, size / 2);
       return new THREE.CanvasTexture(c);
@@ -653,8 +749,8 @@
         renderLine(line1.split(''), step, autoSize,  lineHeight * 0.5);
         renderLine(line2.split(''), step, autoSize, -lineHeight * 0.5);
       } else {
-        autoSize     = Math.max(0.15, Math.min(autoSize, 1.2));
-        var step     = autoSize + autoSize * spacingRatio;
+        autoSize = Math.max(0.15, Math.min(autoSize, 1.2));
+        var step = autoSize + autoSize * spacingRatio;
         renderLine(chars, step, autoSize, 0);
       }
 
@@ -719,35 +815,30 @@
           var minD = (ud.radius + vd.radius) * 0.85;
 
           if (dist < minD && dist > 0.0001) {
-            // нормаль столкновения
             var nx = dx / dist;
             var ny = dy / dist;
 
-            // разделяем буквы чтобы не перекрывались
             var overlap = (minD - dist) * 0.5;
             a.position.x -= nx * overlap;
             a.position.y -= ny * overlap;
             b.position.x += nx * overlap;
             b.position.y += ny * overlap;
 
-            // относительная скорость
             var dvx = vd.vx - ud.vx;
             var dvy = vd.vy - ud.vy;
-            var dot  = dvx * nx + dvy * ny;
+            var dot = dvx * nx + dvy * ny;
 
-            // только если сближаются
             if (dot < 0) {
               var impulse = dot * CONFIG.collisionDamping;
-              var ma = ud.mass;
-              var mb = vd.mass;
-              var total = ma + mb;
+              var ma      = ud.mass;
+              var mb      = vd.mass;
+              var total   = ma + mb;
 
               ud.vx += (2 * mb / total) * impulse * nx;
               ud.vy += (2 * mb / total) * impulse * ny;
               vd.vx -= (2 * ma / total) * impulse * nx;
               vd.vy -= (2 * ma / total) * impulse * ny;
 
-              // небольшое вращение при столкновении
               ud.vRotZ += (Math.random() - 0.5) * 0.02;
               vd.vRotZ += (Math.random() - 0.5) * 0.02;
             }
@@ -767,31 +858,49 @@
       if (currentMode === 1) {
         var aboveFloor = Math.max(0, smoothAudio - CONFIG.audioNoiseFloor);
         chaosIntensity = Math.min(1, aboveFloor / (1 - CONFIG.audioNoiseFloor));
-      } else {
+
+      } else if (currentMode === 2) {
         var soundPresence = Math.min(1, smoothAudio * 4);
         var targetAuto    = 1 - soundPresence;
         autonomousIntensity += (targetAuto - autonomousIntensity) * 0.03;
         chaosIntensity = autonomousIntensity;
+
+      } else if (currentMode === 3) {
+        tickAutoMode();
+        chaosIntensity = autoChaos;
       }
+
+      // параметры импульса — разные для режима 3
+      var isMode3Flying = currentMode === 3 &&
+                          (autoPhase === 'fly' || autoPhase === 'fadein' || autoPhase === 'fadeout');
+
+      var impulseStr    = isMode3Flying ? CONFIG.autoImpulseStrength : CONFIG.impulseStrength;
+      var impulseChance = isMode3Flying ? CONFIG.autoImpulseChance   : 0.85;
+      var rotImp        = isMode3Flying ? CONFIG.autoRotImpulse      : CONFIG.rotImpulse;
+      var zImpScale     = isMode3Flying ? 0.3                        : 1.0;
 
       letterMeshes.forEach(function(mesh) {
         if (!mesh) return;
         var ud = mesh.userData;
 
         // ИМПУЛЬС
-        if (chaosIntensity > 0.01 && Math.random() < chaosIntensity * 0.85) {
-          var s = CONFIG.impulseStrength / ud.mass;
+        if (chaosIntensity > 0.01 && Math.random() < chaosIntensity * impulseChance) {
+          var s = impulseStr / ud.mass;
           ud.vx    += (Math.random() - 0.5) * s * 2;
           ud.vy    += (Math.random() - 0.5) * s * 2;
-          ud.vz    += (Math.random() - 0.5) * CONFIG.zImpulse;
-          ud.vRotZ += (Math.random() - 0.5) * CONFIG.rotImpulse / ud.mass;
-          ud.vRotX += (Math.random() - 0.5) * CONFIG.rotImpulse * 0.5 / ud.mass;
+          ud.vz    += (Math.random() - 0.5) * CONFIG.zImpulse * zImpScale;
+          ud.vRotZ += (Math.random() - 0.5) * rotImp / ud.mass;
+          ud.vRotX += (Math.random() - 0.5) * rotImp * 0.5 / ud.mass;
         }
 
         // ПРИТЯЖЕНИЕ К ДОМУ
-        var returnMult = (currentMode === 2)
-          ? (1 + (1 - autonomousIntensity) * 10)
-          : 1;
+        var returnMult = 1;
+        if (currentMode === 2) {
+          returnMult = 1 + (1 - autonomousIntensity) * 10;
+        } else if (currentMode === 3) {
+          // в паузе и при сборе тянет сильнее
+          returnMult = 1 + (1 - autoChaos) * 8;
+        }
 
         ud.vx    += (ud.homeX - mesh.position.x) * CONFIG.returnForce * returnMult;
         ud.vy    += (ud.homeY - mesh.position.y) * CONFIG.returnForce * returnMult;
@@ -800,9 +909,20 @@
         ud.vRotX += -mesh.rotation.x * CONFIG.rotReturn * returnMult;
 
         // ТРЕНИЕ
-        var frictionMult = (currentMode === 2)
-          ? Math.max(0.92, CONFIG.friction - (1 - autonomousIntensity) * 0.04)
-          : CONFIG.friction;
+        var frictionMult;
+        if (currentMode === 3) {
+          if (autoPhase === 'fly' || autoPhase === 'fadein') {
+            // в полёте — высокое трение, плавное движение
+            frictionMult = CONFIG.autoFriction;
+          } else {
+            // при сборе и паузе — тоже плавно
+            frictionMult = Math.max(0.94, CONFIG.autoFriction - (1 - autoChaos) * 0.02);
+          }
+        } else if (currentMode === 2) {
+          frictionMult = Math.max(0.92, CONFIG.friction - (1 - autonomousIntensity) * 0.04);
+        } else {
+          frictionMult = CONFIG.friction;
+        }
 
         ud.vx    *= frictionMult;
         ud.vy    *= frictionMult;
@@ -811,10 +931,12 @@
         ud.vRotX *= CONFIG.rotFriction;
 
         // ОГРАНИЧЕНИЕ СКОРОСТИ
-        var speed = Math.sqrt(ud.vx * ud.vx + ud.vy * ud.vy);
-        if (speed > CONFIG.maxSpeed) {
-          ud.vx = (ud.vx / speed) * CONFIG.maxSpeed;
-          ud.vy = (ud.vy / speed) * CONFIG.maxSpeed;
+        // в режиме 3 — меньше максимальная скорость
+        var maxSpd = isMode3Flying ? CONFIG.maxSpeed * 0.35 : CONFIG.maxSpeed;
+        var speed  = Math.sqrt(ud.vx * ud.vx + ud.vy * ud.vy);
+        if (speed > maxSpd) {
+          ud.vx = (ud.vx / speed) * maxSpd;
+          ud.vy = (ud.vy / speed) * maxSpd;
         }
 
         // ПРИМЕНЯЕМ СКОРОСТЬ
@@ -822,7 +944,7 @@
         mesh.position.y += ud.vy;
         mesh.position.z += ud.vz;
 
-        // ОТСКОК ОТ ГРАНИЦ — динамический
+        // ОТСКОК ОТ ГРАНИЦ
         var r = ud.radius;
 
         if (mesh.position.x + r > CONFIG.boundsX) {
@@ -854,19 +976,23 @@
         mesh.rotation.z += ud.vRotZ;
         mesh.rotation.x += ud.vRotX;
 
-        // ВОЛНОВОЕ СМЕЩЕНИЕ
-        mesh.position.x += Math.sin(time * 2 + ud.litPhase) * CONFIG.litDisplacement * chaosIntensity * 0.02;
-        mesh.position.y += Math.cos(time * 1.5 + ud.litPhase) * CONFIG.litDisplacement * chaosIntensity * 0.015;
+        // ВОЛНОВОЕ СМЕЩЕНИЕ — в режиме 3 тоже мягче
+        var waveScale = isMode3Flying ? 0.008 : 0.02;
+        var waveScaleY = isMode3Flying ? 0.005 : 0.015;
+        mesh.position.x += Math.sin(time * 2 + ud.litPhase) * CONFIG.litDisplacement * chaosIntensity * waveScale;
+        mesh.position.y += Math.cos(time * 1.5 + ud.litPhase) * CONFIG.litDisplacement * chaosIntensity * waveScaleY;
 
-        // ГЛИТЧ
-        ud.glitchTimer -= 1;
-        if (chaosIntensity > 0.3 && speed > CONFIG.maxSpeed * 0.5 && Math.random() < 0.03) {
-          ud.glitchTimer   = 2 + Math.floor(Math.random() * 3);
-          ud.glitchOffsetX = (Math.random() - 0.5) * 0.3 * chaosIntensity;
-          ud.glitchOffsetY = (Math.random() - 0.5) * 0.15 * chaosIntensity;
+        // ГЛИТЧ — в режиме 3 отключён
+        if (currentMode !== 3) {
+          ud.glitchTimer -= 1;
+          if (chaosIntensity > 0.3 && speed > CONFIG.maxSpeed * 0.5 && Math.random() < 0.03) {
+            ud.glitchTimer   = 2 + Math.floor(Math.random() * 3);
+            ud.glitchOffsetX = (Math.random() - 0.5) * 0.3 * chaosIntensity;
+            ud.glitchOffsetY = (Math.random() - 0.5) * 0.15 * chaosIntensity;
+          }
         }
 
-        if (ud.glitchTimer > 0) {
+        if (ud.glitchTimer > 0 && currentMode !== 3) {
           mesh.position.x += ud.glitchOffsetX;
           mesh.position.y += ud.glitchOffsetY;
           var glitchScale   = 1 + (Math.random() - 0.5) * 0.15 * chaosIntensity;
@@ -881,7 +1007,7 @@
         litLight.intensity = chaosIntensity * CONFIG.litIntensity;
       });
 
-      // КОЛЛИЗИИ МЕЖДУ БУКВАМИ
+      // КОЛЛИЗИИ
       if (CONFIG.letterCollision) {
         resolveCollisions();
       }
@@ -929,8 +1055,21 @@
       currentMode = mode;
       modeIndicator.textContent = 'способ ' + mode;
 
-      if (mode === 1) autonomousIntensity = 0;
-      if (mode === 2) autonomousIntensity = 1;
+      if (mode === 1) {
+        autonomousIntensity = 0;
+        autoPhaseEl.classList.remove('visible');
+      }
+      if (mode === 2) {
+        autonomousIntensity = 1;
+        autoPhaseEl.classList.remove('visible');
+      }
+      if (mode === 3) {
+        autoTimer = 0;
+        autoPhase = 'pause';
+        autoChaos = 0;
+        autoPhaseEl.textContent = phaseLabels['pause'];
+        autoPhaseEl.classList.add('visible');
+      }
 
       modeItems.forEach(function(item) {
         item.classList.toggle('active',
@@ -965,6 +1104,7 @@
     document.addEventListener('keyup', function(e) {
       if (e.key === '1') setMode(1);
       if (e.key === '2') setMode(2);
+      if (e.key === '3') setMode(3);
       if (e.key === 'Escape') {
         closeAllPanels();
         debugWindow.classList.remove('visible');
@@ -972,7 +1112,7 @@
     });
 
     // ========================================
-    // RESIZE — пересчитываем границы мгновенно
+    // RESIZE
     // ========================================
     window.addEventListener('resize', function() {
       camera.aspect = window.innerWidth / window.innerHeight;
