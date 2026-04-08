@@ -329,7 +329,7 @@
     </div>
     <div id="sliders-wrap">
       <div class="slider-row">
-        <div class="slider-top">
+             <div class="slider-top">
           <span class="slider-name">порог тишины</span>
           <span class="slider-value" id="val-floor">6</span>
         </div>
@@ -339,34 +339,34 @@
       <div class="slider-row">
         <div class="slider-top">
           <span class="slider-name">чувствительность</span>
-          <span class="slider-value" id="val-gain">9</span>
+          <span class="slider-value" id="val-gain">10</span>
         </div>
         <div class="slider-desc">усиление сигнала микрофона</div>
-        <input type="range" id="sl-gain" min="1" max="20" step="1" value="9">
+        <input type="range" id="sl-gain" min="1" max="20" step="1" value="10">
       </div>
       <div class="slider-row">
         <div class="slider-top">
           <span class="slider-name">амплитуда</span>
-          <span class="slider-value" id="val-impulse">55</span>
+          <span class="slider-value" id="val-impulse">30</span>
         </div>
         <div class="slider-desc">сила разлёта букв при звуке</div>
-        <input type="range" id="sl-impulse" min="5" max="150" step="5" value="55">
+        <input type="range" id="sl-impulse" min="5" max="150" step="5" value="30">
       </div>
       <div class="slider-row">
         <div class="slider-top">
           <span class="slider-name">пружинистость</span>
-          <span class="slider-value" id="val-spring">18</span>
+          <span class="slider-value" id="val-spring">1</span>
         </div>
         <div class="slider-desc">скорость возврата на место</div>
-        <input type="range" id="sl-spring" min="1" max="60" step="1" value="18">
+        <input type="range" id="sl-spring" min="1" max="60" step="1" value="1">
       </div>
       <div class="slider-row">
         <div class="slider-top">
           <span class="slider-name">инерция</span>
-          <span class="slider-value" id="val-friction">972</span>
+          <span class="slider-value" id="val-friction">936</span>
         </div>
         <div class="slider-desc">плавность торможения букв</div>
-        <input type="range" id="sl-friction" min="900" max="998" step="2" value="972">
+        <input type="range" id="sl-friction" min="900" max="998" step="2" value="936">
       </div>
     </div>
     <div id="debug-status">
@@ -382,40 +382,37 @@
     // КОНФИГ
     // ========================================
     var CONFIG = {
-      text: 'Я ЗДЕСЬ БЫЛ',
+  text: 'Я ЗДЕСЬ БЫЛ',
 
-      impulseStrength: 0.055,
-      friction:        0.972,
-      returnForce:     0.018,
-      maxSpeed:        0.40,
+  impulseStrength: 0.030,   // амплитуда 30
+  friction:        0.936,   // инерция 936
+  returnForce:     0.001,   // пружинистость 1
+  maxSpeed:        0.40,
 
-      rotImpulse:  0.028,
-      rotFriction: 0.965,
-      rotReturn:   0.018,
+  rotImpulse:  0.015,
+  rotFriction: 0.929,
+  rotReturn:   0.001,
 
-      maxZ:     3.5,
-      zImpulse: 0.038,
+  maxZ:     3.5,
+  zImpulse: 0.038,
 
-      // отскок от стен
-      wallBounceDamping: 0.6,
+  wallBounceDamping: 0.6,
+  letterCollision:   true,
+  collisionDamping:  0.5,
 
-      // коллизии между буквами
-      letterCollision: true,
-      collisionDamping: 0.5,
+  audioRiseSmoothing: 0.95,
+  audioFallSmoothing: 0.18,
+  audioNoiseFloor:    0.06,   // порог тишины 6
+  audioGain:          10.0,   // чувствительность 10
 
-      audioRiseSmoothing: 0.95,
-      audioFallSmoothing: 0.18,
-      audioNoiseFloor:    0.06,
-      audioGain:          9.0,
+  litIntensity:    0.8,
+  litDisplacement: 0.15,
 
-      litIntensity:    0.8,
-      litDisplacement: 0.15,
+  boundsX: 5.5,
+  boundsY: 3.2,
 
-      boundsX: 5.5,
-      boundsY: 3.2,
-
-      letterColor: '#ff2200',
-    };
+  letterColor: '#ff2200',
+};
 
     // ========================================
     // DOM
